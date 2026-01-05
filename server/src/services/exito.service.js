@@ -2,10 +2,12 @@ import puppeteer from "puppeteer";
 
 export const search = async (query) => {
   let browser;
+
   try {
     browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
 
+    // Simulamos que es un navegador
     await page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     );
@@ -13,8 +15,8 @@ export const search = async (query) => {
     let allProducts = [];
     let totalCount = 0;
 
-    for (let pageNumber = 0; pageNumber < 3; pageNumber++) {
-      // primeras 3 páginas
+    // Recorremos cada paginacion, para obtener todos los productos
+    for (let pageNumber = 0; pageNumber < 1; pageNumber++) {
       let productsData = [];
       let captured = false;
 
@@ -58,6 +60,7 @@ export const search = async (query) => {
       const url = `https://www.exito.com/s?q=${encodeURIComponent(
         query
       )}&sort=score_desc&page=${pageNumber}`;
+
       await page.goto(url, { waitUntil: "networkidle2" });
       await new Promise((resolve) => setTimeout(resolve, 3000)); // esperar que responda la API
 
@@ -67,9 +70,10 @@ export const search = async (query) => {
 
     return { products: allProducts, totalCount };
   } catch (err) {
-    console.error("[ERROR] Ocurrió un problema durante el scraping:", err);
+    console.error("Error", err);
     return { products: [], totalCount: 0 };
   } finally {
+    // Cerramos la pagina
     if (browser) await browser.close();
   }
 };

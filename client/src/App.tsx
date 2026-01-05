@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
+import Theme from "./components/Theme";
 
 interface Product {
   name: string;
@@ -41,7 +42,8 @@ function App() {
   };
 
   return (
-    <div className="w-full bg-gray-200 min-h-screen flex items-center justify-center flex-col p-4 gap-4">
+    <div className="w-full min-h-screen flex flex-col items-center justify-center p-4 gap-4 bg-primary text-primary transition-colors duration-300">
+      <Theme />
       <form
         onSubmit={handleSearch}
         className="flex border rounded-xl overflow-hidden"
@@ -50,25 +52,21 @@ function App() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           type="text"
-          className="rounded-xl px-4 focus:outline-0"
+          className="input flex-1"
         />
-        <button className="p-3 bg-emerald-300 border-l hover:bg-emerald-200">
+        <button className="button">
           <FaSearch />
         </button>
       </form>
-      {loading && (
-        <div className="text-gray-700 font-semibold">
-          Buscando productos para "{query}"...
-        </div>
-      )}
+      {loading && <div className="font-semibold">Buscando "{query}"...</div>}
       {data && (
-        <div className="bg-white p-4 rounded-xl">
+        <div className="card">
           <section className="flex gap-2 items-center mb-2">
             <img className="h-10" src="/exito.png" alt="exito" />
             <h2>{data.totalCount} resultados</h2>
           </section>
-          <table className="min-w-full bg-white rounded-xl overflow-hidden">
-            <thead className="bg-gray-200">
+          <table className="table">
+            <thead className="bg-gray-200 dark:bg-gray-700">
               <tr>
                 <th className="px-4 py-2 text-left">Id</th>
                 <th className="px-4 py-2 text-left">Nombre</th>
@@ -78,25 +76,19 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {data.products.map((p: Product, i: number) => (
-                <tr key={i} className="border-b hover:bg-gray-50">
-                  {/* Id */}
+              {data.products.map((p, i) => (
+                <tr
+                  key={i}
+                  className="border-b hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
                   <td className="px-4 font-semibold">{i + 1}</td>
-
-                  {/* Nombre del producto */}
                   <td className="px-4 font-semibold">{p.name}</td>
-
-                  {/* Precio final */}
                   <td className="px-4 font-bold">
                     $ {Number(p.price).toLocaleString("es-CO")}
                   </td>
-
-                  {/* Precio por gramo */}
-                  <td className="px-4 text-gray-600">
+                  <td className="px-4 text-gray-600 dark:text-gray-300">
                     $ {Number(p.pricePerUnit).toLocaleString("es-CO")}
                   </td>
-
-                  {/* Link*/}
                   <td className="px-5 py-2">
                     <a
                       href={`https://www.exito.com${p.link}`}

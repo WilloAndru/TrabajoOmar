@@ -1,1 +1,49 @@
 @import "tailwindcss";
+
+:root {
+  --bg-primary: #f3f4f6;
+  --text-primary: #1f2937;
+  --card-bg: #ffffff;
+  --table-bg: #ffffff;
+  --input-bg: #ffffff;
+  --button-bg: #34d399;
+  --button-hover: #6ee7b7;
+}
+
+.dark {
+  --bg-primary: #111827;
+  --text-primary: #f3f4f6;
+  --card-bg: #1f2937;
+  --table-bg: #1f2937;
+  --input-bg: #374151;
+  --button-bg: #059669;
+  --button-hover: #047857;
+}
+
+.bg-primary {
+  background-color: var(--bg-primary);
+}
+.text-primary {
+  color: var(--text-primary);
+}
+.card {
+  @apply rounded-xl p-4 shadow-md;
+  background-color: var(--card-bg);
+}
+.input {
+  @apply rounded border px-3 py-2;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+}
+.button {
+  @apply px-4 py-2 rounded font-semibold;
+  background-color: var(--button-bg);
+  color: var(--text-primary);
+}
+.button:hover {
+  background-color: var(--button-hover);
+}
+.table {
+  @apply w-full border-collapse rounded-xl overflow-hidden;
+  background-color: var(--table-bg);
+}
