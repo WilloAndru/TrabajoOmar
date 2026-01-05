@@ -1,6 +1,6 @@
-import search from "../services/exito.service.js";
+import { search } from "../services/exito.service.js";
 
-const searchProduct = async (req, res) => {
+export const searchProduct = async (req, res) => {
   const { q } = req.query;
 
   if (!q) {
@@ -8,12 +8,10 @@ const searchProduct = async (req, res) => {
   }
 
   try {
-    const result = await search(q);
-    res.json(result);
+    const products = await search(q);
+    return res.json({ supermarket: "Exito", q, products });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error de servicio" });
   }
 };
-
-export default searchProduct;

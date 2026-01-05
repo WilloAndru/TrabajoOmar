@@ -1,60 +1,83 @@
-import axios from "axios";
+import puppeteer from "puppeteer";
 
-const search = async (query) => {
-  // Definimos la cantidad y pagina de productos a buscar
-  const variables = {
-    first: 16, // Productos por página
-    after: 0, // Desde qué índice empezar (paginación)
-    sort: "score_desc", // Orden por relevancia
-    term: query, // Término de búsqueda
-    selectedFacets: [
-      // Filtros: canal de venta y localización
-      { key: "channel", value: '{"salesChannel":"1","regionId":""}' },
-      { key: "locale", value: "es-CO" },
-    ],
-  };
-
+// Función que busca productos en Exito usando la API interna
+export const search = async (query) => {
+  let browser;
   try {
-    const response = await axios.post(
-      "https://www.exito.com/api/graphql", // URL real de exito
-      {
-        operationName: "SearchQuery",
-        variables, // Variables de búsqueda y paginación
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "User-Agent": "Mozilla/5.0", // Simula un navegador
-        },
-      }
+    // Abrimos un navegador Chromium invisible
+    browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+
+    // Simulamos un navegador real para evitar bloqueos
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     );
-    console.log("🔹 response.data:", response.data); // <--- para debug
 
-    const productsRaw = response.data?.data?.search?.products;
-    if (!productsRaw) {
-      console.error("❌ No se pudo obtener productos:", response.data?.errors);
-      return { supermarket: "Exito", query, products: [] };
-    }
+    let productsData = []; // Array para almacenar productos
+    let captured = false; // Flag para capturar la API solo una vez
 
-    // Extraemos los datos a mostrar
-    const products = productsRaw.edges.map((edge) => {
-      const p = edge.node;
-      return {
-        name: p.name,
-        price: p.items?.[0]?.sellers?.[0]?.commertialOffer?.Price || 0,
-        image: p.items?.[0]?.images?.[0]?.imageUrl || "",
-        link: `/p/${p.slug}`,
-      };
+    // Escuchamos todas las respuestas HTTP de la página
+    page.on("response", async (response) => {
+      const url = response.url();
+      // Filtramos la llamada a la API interna de productos
+      if (
+        !captured &&
+        url.includes("/api/graphql") &&
+        url.includes("SearchQuery")
+      ) {
+        captured = true; // Evita capturar varias veces
+        const json = await response.json(); // Convertimos a JSON
+        const edges = json?.data?.search?.products?.edges || []; // Obtenemos los productos
+        // Transformamos la información al formato
+        const products = edges.map((edge) => {
+          const p = edge.node;
+          const offer = p.items?.[0]?.sellers?.[0]?.commertialOffer || {};
+
+          // Buscar factor y unidad en properties
+          const factorProp = p.properties?.find(
+            (pr) => pr.name === "Factor Neto PUM"
+          );
+          const unitProp = p.properties?.find(
+            (pr) => pr.name === "Unidad de Medida PUM Calculado"
+          );
+
+          const factor = factorProp?.values?.[0]
+            ? parseFloat(factorProp.values[0])
+            : 1;
+          const unit = unitProp?.values?.[0] || "";
+
+          const pricePerUnit =
+            factor > 0 ? (offer.Price / factor).toFixed(3) : null;
+
+          return {
+            name: p.name,
+            price: offer.Price || 0,
+            pricePerUnit: pricePerUnit,
+            unit: unit,
+            image: p.items?.[0]?.images?.[0]?.imageUrl || "",
+            link: `/${p.slug}/p`,
+          };
+        });
+
+        productsData = products;
+      }
     });
 
-    return {
-      supermarket: "Exito",
-      query,
-      products,
-    };
+    // Abrimos la página de búsqueda
+    const url = `https://www.exito.com/s?q=${encodeURIComponent(query)}`;
+    await page.goto(url, { waitUntil: "networkidle2" }); // Espera a que cargue la mayoría de requests
+
+    // Esperamos unos segundos para que la API responda y podamos capturar productos
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    return productsData; // Devolvemos los productos capturados
   } catch (err) {
-    console.error("Error", err);
+    console.error("[ERROR] Ocurrió un problema durante el scraping:", err);
+    return []; // Retornamos array vacío si hay error
+  } finally {
+    if (browser) {
+      await browser.close(); // Cerramos el navegador siempre
+      console.log("[INFO] Navegador cerrado");
+    }
   }
 };
-
-export default search;
