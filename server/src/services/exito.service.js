@@ -1,38 +1,41 @@
 import axios from "axios";
-import * as cheerio from "cheerio";
 
 const search = async (query) => {
-  const url = `https://www.exito.com/s?q=${encodeURIComponent(query)}`;
+  // La URL usa directamente la query dinámica
+  const url = `https://www.exito.com/api/catalog_system/pub/products/search/${encodeURIComponent(
+    query
+  )}`;
 
-  const response = await axios.get(url, {
-    headers: {
-      "User-Agent": "AcademicPriceComparator/1.0",
-    },
-  });
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0", // Simula un navegador, para evitar bloqueos por ser un bot
+      },
+    });
 
-  const $ = cheerio.load(response.data);
+    // Log completo del objeto recibido
+    console.log("🔹 Response.data completo:");
+    console.log(JSON.stringify(response.data, null, 2));
 
-  console.log($(".productCard_productInfo__yn2lK").length);
+    // response.data es directamente un array de productos
+    const productsRaw = response.data || [];
+    console.log("🔹 Total de productos recibidos:", productsRaw.length);
 
-  const products = [];
+    const products = productsRaw.map((p) => ({
+      name: p.productName,
+      price: p.items?.[0]?.sellers?.[0]?.commertialOffer?.Price || 0,
+      image: p.items?.[0]?.images?.[0]?.imageUrl || "",
+      link: `/p/${p.linkText}`,
+    }));
 
-  $(".productCard_productInfo__yn2lK").each((_, el) => {
-    const name = $(el).find(".styles_name__qQJiK").text().trim();
-    const price = $(el)
-      .find(".ProductPrice_container__price__XmMWA.ProductPrice_text14___ZxlL")
-      .text()
-      .trim();
-
-    if (name && price) {
-      products.push({ name, price });
-    }
-  });
-
-  return {
-    supermarket: "Exito",
-    query,
-    products,
-  };
+    return {
+      supermarket: "Exito",
+      query,
+      products,
+    };
+  } catch (err) {
+    console.error("❌ Error al consultar API pública de Éxito:", err);
+  }
 };
 
 export default search;

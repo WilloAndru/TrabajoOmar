@@ -9,8 +9,6 @@ const searchProduct = async (req, res) => {
 
   try {
     const result = await search(q);
-    console.log(result);
-
     res.json(result);
   } catch (error) {
     console.error(error);
