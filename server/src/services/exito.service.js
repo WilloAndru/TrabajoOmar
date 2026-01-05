@@ -1,7 +1,7 @@
 import axios from "axios";
 
-export const search = async (query) => {
-  const url = `https://www.exito.com/search?q=${encodeURIComponent(query)}`;
+const search = async (query) => {
+  const url = `https://www.exito.com/s?q=${encodeURIComponent(query)}`;
 
   const response = await axios.get(url, {
     headers: {
@@ -12,6 +12,8 @@ export const search = async (query) => {
   return {
     supermarket: "Exito",
     query,
-    htmlLength: response.data.lenght,
+    htmlLength: response.data.length,
   };
 };
+
+export default search;

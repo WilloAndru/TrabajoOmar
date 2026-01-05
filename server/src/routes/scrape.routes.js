@@ -1,5 +1,5 @@
 import express from "express";
-import searchProduct from "../controllers/scrape.controller";
+import searchProduct from "../controllers/scrape.controller.js";
 
 const router = express.Router();
 
