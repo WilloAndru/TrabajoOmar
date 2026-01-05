@@ -42,30 +42,35 @@ function App() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-center p-4 gap-4 bg-primary text-primary transition-colors duration-300">
+    <div className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col p-4 gap-4 transition-colors">
       <Theme />
       <form
         onSubmit={handleSearch}
-        className="flex border rounded-xl overflow-hidden"
+        className="flex border rounded overflow-hidden"
       >
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           type="text"
-          className="input flex-1"
+          className="rounded px-4 focus:outline-0"
         />
-        <button className="button">
+        <button className="p-3 bg-emerald-400 border-l hover:bg-emerald-300">
           <FaSearch />
         </button>
       </form>
-      {loading && <div className="font-semibold">Buscando "{query}"...</div>}
+      {loading && (
+        <div className="font-semibold text-gray-600 dark:text-gray-400">
+          Buscando productos para "{query}"
+        </div>
+      )}
       {data && (
-        <div className="card">
+        <div className="bg-white dark:bg-gray-900 p-4 rounded">
           <section className="flex gap-2 items-center mb-2">
             <img className="h-10" src="/exito.png" alt="exito" />
             <h2>{data.totalCount} resultados</h2>
           </section>
-          <table className="table">
+
+          <table className="min-w-full bg-white dark:bg-gray-800 rounded overflow-hidden">
             <thead className="bg-gray-200 dark:bg-gray-700">
               <tr>
                 <th className="px-4 py-2 text-left">Id</th>
@@ -75,25 +80,36 @@ function App() {
                 <th className="px-4 py-2 text-left">Link</th>
               </tr>
             </thead>
+
             <tbody>
-              {data.products.map((p, i) => (
+              {data.products.map((p: Product, i: number) => (
                 <tr
                   key={i}
-                  className="border-b hover:bg-gray-50 dark:hover:bg-gray-600"
+                  className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
+                  {/* Id */}
                   <td className="px-4 font-semibold">{i + 1}</td>
+
+                  {/* Nombre del producto */}
                   <td className="px-4 font-semibold">{p.name}</td>
+
+                  {/* Precio final */}
                   <td className="px-4 font-bold">
                     $ {Number(p.price).toLocaleString("es-CO")}
                   </td>
-                  <td className="px-4 text-gray-600 dark:text-gray-300">
+
+                  {/* Precio por gramo */}
+                  <td className="px-4 text-gray-600 dark:text-gray-400">
                     $ {Number(p.pricePerUnit).toLocaleString("es-CO")}
                   </td>
+
+                  {/* Link */}
                   <td className="px-5 py-2">
                     <a
                       href={`https://www.exito.com${p.link}`}
                       target="_blank"
                       rel="noopener noreferrer"
+                      className="flex items-center justify-center w-full h-full hover:scale-120 transition-transform"
                     >
                       🔗
                     </a>
