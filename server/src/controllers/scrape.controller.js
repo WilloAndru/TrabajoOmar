@@ -8,8 +8,8 @@ export const searchProduct = async (req, res) => {
   }
 
   try {
-    const products = await search(q);
-    return res.json({ q, products });
+    const response = await search(q);
+    return res.json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error de servicio" });

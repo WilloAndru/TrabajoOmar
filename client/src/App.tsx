@@ -6,13 +6,11 @@ interface Product {
   name: string;
   price: string;
   pricePerUnit: string;
-  unit: string;
   link: string;
 }
 
 interface ScrapeResult {
-  supermarket: string;
-  query: string;
+  totalCount: number;
   products: Product[];
 }
 
@@ -67,10 +65,12 @@ function App() {
         <div className="bg-white p-4 rounded-xl">
           <section className="flex gap-2 items-center mb-2">
             <img className="h-10" src="/exito.png" alt="exito" />
+            <h2>{data.totalCount} resultados</h2>
           </section>
           <table className="min-w-full bg-white rounded-xl overflow-hidden">
             <thead className="bg-gray-200">
               <tr>
+                <th className="px-4 py-2 text-left">Id</th>
                 <th className="px-4 py-2 text-left">Nombre</th>
                 <th className="px-4 py-2 text-left">Precio final</th>
                 <th className="px-4 py-2 text-left">Precio por gr</th>
@@ -80,6 +80,9 @@ function App() {
             <tbody>
               {data.products.map((p: Product, i: number) => (
                 <tr key={i} className="border-b hover:bg-gray-50">
+                  {/* Id */}
+                  <td className="px-4 font-semibold">{i + 1}</td>
+
                   {/* Nombre del producto */}
                   <td className="px-4 font-semibold">{p.name}</td>
 
