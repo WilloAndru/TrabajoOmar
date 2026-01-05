@@ -9,7 +9,7 @@ export const searchProduct = async (req, res) => {
 
   try {
     const products = await search(q);
-    return res.json({ supermarket: "Exito", q, products });
+    return res.json({ q, products });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error de servicio" });

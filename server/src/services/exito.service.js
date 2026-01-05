@@ -13,7 +13,7 @@ export const search = async (query) => {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     );
 
-    let productsData = []; // Array para almacenar productos
+    let productsData = [];
     let captured = false; // Flag para capturar la API solo una vez
 
     // Escuchamos todas las respuestas HTTP de la página
@@ -28,6 +28,7 @@ export const search = async (query) => {
         captured = true; // Evita capturar varias veces
         const json = await response.json(); // Convertimos a JSON
         const edges = json?.data?.search?.products?.edges || []; // Obtenemos los productos
+
         // Transformamos la información al formato
         const products = edges.map((edge) => {
           const p = edge.node;
@@ -54,7 +55,6 @@ export const search = async (query) => {
             price: offer.Price || 0,
             pricePerUnit: pricePerUnit,
             unit: unit,
-            image: p.items?.[0]?.images?.[0]?.imageUrl || "",
             link: `/${p.slug}/p`,
           };
         });
@@ -70,7 +70,7 @@ export const search = async (query) => {
     // Esperamos unos segundos para que la API responda y podamos capturar productos
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    return productsData; // Devolvemos los productos capturados
+    return productsData;
   } catch (err) {
     console.error("[ERROR] Ocurrió un problema durante el scraping:", err);
     return []; // Retornamos array vacío si hay error
