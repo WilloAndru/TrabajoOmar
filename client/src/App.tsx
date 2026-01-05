@@ -2,10 +2,16 @@ import axios from "axios";
 import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 
+interface Product {
+  name: string;
+  price: string;
+  image?: string;
+}
+
 interface ScrapeResult {
   supermarket: string;
   query: string;
-  result: unknown;
+  products: Product[];
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -48,12 +54,16 @@ function App() {
       </form>
       {data && (
         <div className="bg-white p-4 rounded-xl shadow w-96">
-          <h2 className="font-bold mb-2">Supermercado: {data.supermarket}</h2>
-          <p className="text-sm text-gray-600 mb-2">Búsqueda: {data.query}</p>
+          <h2 className="font-bold mb-2">{data.supermarket}</h2>
 
-          <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto">
-            {JSON.stringify(data.result, null, 2)}
-          </pre>
+          <ul className="space-y-2">
+            {data.products.map((p: any, i: any) => (
+              <li key={i} className="border-b pb-1">
+                <p className="font-semibold">{p.name}</p>
+                <p className="text-sm text-gray-600">{p.price}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
