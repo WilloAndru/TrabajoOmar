@@ -5,7 +5,7 @@ import { FaSearch } from "react-icons/fa";
 interface Product {
   name: string;
   price: string;
-  image?: string;
+  image: string;
 }
 
 interface ScrapeResult {
@@ -37,7 +37,7 @@ function App() {
   };
 
   return (
-    <div className="w-screen h-screen bg-gray-200 flex items-center justify-center">
+    <div className="w-screen bg-gray-200 min-h-screen flex items-center justify-center flex-col p-4 gap-4">
       <form
         onSubmit={handleSearch}
         className="flex border-2 rounded-xl overflow-hidden"
@@ -53,14 +53,16 @@ function App() {
         </button>
       </form>
       {data && (
-        <div className="bg-white p-4 rounded-xl shadow w-96">
+        <div className="bg-white p-4 rounded-xl shadow">
           <h2 className="font-bold mb-2">{data.supermarket}</h2>
-
           <ul className="space-y-2">
-            {data.products.map((p: any, i: any) => (
-              <li key={i} className="border-b pb-1">
-                <p className="font-semibold">{p.name}</p>
-                <p className="text-sm text-gray-600">{p.price}</p>
+            {data.products.map((p: Product, i: number) => (
+              <li key={i} className="border-b pb-1 flex gap-2">
+                <img className="w-20" src={p.image} alt="Img" />
+                <div>
+                  <p className="font-semibold">{p.name}</p>
+                  <p className="text-gray-600 font-bold">$ {p.price}</p>
+                </div>
               </li>
             ))}
           </ul>

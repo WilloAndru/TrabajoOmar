@@ -1,32 +1,51 @@
 import axios from "axios";
 
 const search = async (query) => {
-  // La URL usa directamente la query dinámica
-  const url = `https://www.exito.com/api/catalog_system/pub/products/search/${encodeURIComponent(
-    query
-  )}`;
+  // Definimos la cantidad y pagina de productos a buscar
+  const variables = {
+    first: 16, // Productos por página
+    after: 0, // Desde qué índice empezar (paginación)
+    sort: "score_desc", // Orden por relevancia
+    term: query, // Término de búsqueda
+    selectedFacets: [
+      // Filtros: canal de venta y localización
+      { key: "channel", value: '{"salesChannel":"1","regionId":""}' },
+      { key: "locale", value: "es-CO" },
+    ],
+  };
 
   try {
-    const response = await axios.get(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0", // Simula un navegador, para evitar bloqueos por ser un bot
+    const response = await axios.post(
+      "https://www.exito.com/api/graphql", // URL real de exito
+      {
+        operationName: "SearchQuery",
+        variables, // Variables de búsqueda y paginación
       },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": "Mozilla/5.0", // Simula un navegador
+        },
+      }
+    );
+    console.log("🔹 response.data:", response.data); // <--- para debug
+
+    const productsRaw = response.data?.data?.search?.products;
+    if (!productsRaw) {
+      console.error("❌ No se pudo obtener productos:", response.data?.errors);
+      return { supermarket: "Exito", query, products: [] };
+    }
+
+    // Extraemos los datos a mostrar
+    const products = productsRaw.edges.map((edge) => {
+      const p = edge.node;
+      return {
+        name: p.name,
+        price: p.items?.[0]?.sellers?.[0]?.commertialOffer?.Price || 0,
+        image: p.items?.[0]?.images?.[0]?.imageUrl || "",
+        link: `/p/${p.slug}`,
+      };
     });
-
-    // Log completo del objeto recibido
-    console.log("🔹 Response.data completo:");
-    console.log(JSON.stringify(response.data, null, 2));
-
-    // response.data es directamente un array de productos
-    const productsRaw = response.data || [];
-    console.log("🔹 Total de productos recibidos:", productsRaw.length);
-
-    const products = productsRaw.map((p) => ({
-      name: p.productName,
-      price: p.items?.[0]?.sellers?.[0]?.commertialOffer?.Price || 0,
-      image: p.items?.[0]?.images?.[0]?.imageUrl || "",
-      link: `/p/${p.linkText}`,
-    }));
 
     return {
       supermarket: "Exito",
@@ -34,7 +53,7 @@ const search = async (query) => {
       products,
     };
   } catch (err) {
-    console.error("❌ Error al consultar API pública de Éxito:", err);
+    console.error("Error", err);
   }
 };
 
