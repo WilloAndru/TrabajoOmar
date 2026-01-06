@@ -1,4 +1,4 @@
-import { search } from "../services/exito.service.js";
+import { searchProducts } from "../services/exito.service.js";
 
 export const searchProduct = async (req, res) => {
   const { query, sortBy } = req.query;
@@ -8,7 +8,7 @@ export const searchProduct = async (req, res) => {
   }
 
   try {
-    const response = await search(query, sortBy);
+    const response = await searchProducts(query, sortBy);
     return res.json(response);
   } catch (err) {
     res.status(500).json({ err: "Error en el servicio de exito" });

@@ -1,6 +1,6 @@
 import puppeteer from "puppeteer";
 
-export const search = async (query, sortBy) => {
+export const searchProducts = async (query, sortBy) => {
   let browser;
 
   try {
