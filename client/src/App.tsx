@@ -2,6 +2,8 @@ import axios from "axios";
 import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import Theme from "./components/Theme";
+import Exito from "./components/Exito";
+import Jumbo from "./components/Jumbo";
 
 interface Product {
   name: string;
@@ -22,14 +24,17 @@ function App() {
   const [query, setQuery] = useState<string>("");
   const [data, setData] = useState<ScrapeResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [sortBy, setSortBy] = useState<string>("score_desc");
+  const [sortBy, setSortBy] = useState<string>("price_asc");
   const [error, setError] = useState<string>("");
+  const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
 
-  const SORT_OPTIONS = [
-    { value: "score_desc", label: "Relevancia" },
-    { value: "price_asc", label: "Menor precio" },
-    { value: "price_desc", label: "Mayor precio" },
-  ];
+  const toggleMarket = (id: string) => {
+    setSelectedMarkets((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,6 +55,14 @@ function App() {
     }
   };
 
+  const SUPER_MARKETS = [
+    { id: "exito", img: "/exito.png" },
+    { id: "d1", img: "/d1.png" },
+    { id: "jumbo", img: "/jumbo.png" },
+    { id: "olimpica", img: "/olimpica.png" },
+    { id: "alkosto", img: "/alkosto.png" },
+  ];
+
   return (
     <div className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col p-4 gap-6 transition-colors">
       <Theme />
@@ -57,22 +70,26 @@ function App() {
         <img src="/icon.png" className="w-15" alt="icon" />
         <h1>PriceCompare</h1>
       </section>
-      <section className="rounded border overflow-hidden">
-        {SORT_OPTIONS.map(({ value, label }) => (
-          <button
-            key={value}
-            onClick={() => setSortBy(value)}
-            className={`px-3 py-1 transition-colors
-              ${
-                sortBy === value
-                  ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
-                  : "text-gray-600 dark:text-gray-400"
+      <div className="flex gap-3">
+        {SUPER_MARKETS.map((item) => {
+          const isActive = selectedMarkets.has(item.id);
+          return (
+            <button
+              key={item.id}
+              onClick={() => toggleMarket(item.id)}
+              className={`rounded-xl p-2 ${
+                isActive
+                  ? "bg-gray-900 ring-2 ring-gray-900 dark:bg-gray-100 dark:ring-gray-100"
+                  : "bg-white hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-700"
               }`}
-          >
-            {label}
-          </button>
-        ))}
-      </section>
+              aria-pressed={isActive}
+            >
+              <img src={item.img} className="w-12 rounded-xl" />
+            </button>
+          );
+        })}
+      </div>
+
       <form
         onSubmit={handleSearch}
         className="flex border rounded overflow-hidden"

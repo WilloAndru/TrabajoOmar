@@ -13,7 +13,7 @@ export const search = async (query, sortBy) => {
     );
 
     let allProducts = [];
-    let totalCount = 0;
+    let totalCount = 0; // Numero total de resultados
 
     // Recorremos cada paginacion, para obtener todos los productos
     for (let pageNumber = 0; pageNumber < 1; pageNumber++) {
@@ -37,6 +37,7 @@ export const search = async (query, sortBy) => {
 
           productsData = edges.map((edge) => {
             const p = edge.node;
+            console.log(p);
             const offer = p.items?.[0]?.sellers?.[0]?.commertialOffer || {};
             const factorProp = p.properties?.find(
               (pr) => pr.name === "Factor Neto PUM"
