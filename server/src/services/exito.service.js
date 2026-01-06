@@ -1,6 +1,6 @@
 import puppeteer from "puppeteer";
 
-export const search = async (query) => {
+export const search = async (query, sortBy) => {
   let browser;
 
   try {
@@ -18,7 +18,7 @@ export const search = async (query) => {
     // Recorremos cada paginacion, para obtener todos los productos
     for (let pageNumber = 0; pageNumber < 1; pageNumber++) {
       let productsData = [];
-      let captured = false;
+      let captured = false; // Capturamos el html una sola vez
 
       page.on("response", async (response) => {
         const url = response.url();
@@ -65,15 +65,15 @@ export const search = async (query) => {
       await new Promise((resolve) => setTimeout(resolve, 3000)); // esperar que responda la API
 
       allProducts.push(...productsData);
+
       page.removeAllListeners("response"); // limpiar listener antes de la siguiente página
     }
 
     return { products: allProducts, totalCount };
   } catch (err) {
     console.error("Error", err);
-    return { products: [], totalCount: 0 };
   } finally {
-    // Cerramos la pagina
+    // Siempre cerramos la pagina
     if (browser) await browser.close();
   }
 };

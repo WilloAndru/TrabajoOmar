@@ -21,6 +21,8 @@ function App() {
   const [query, setQuery] = useState<string>("");
   const [data, setData] = useState<ScrapeResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [sortBy, setSortBy] = useState("relevance");
+  const [error, setError] = useState<string>("");
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,11 +33,11 @@ function App() {
 
     try {
       const response = await axios.get<ScrapeResult>(`${API_URL}/search`, {
-        params: { q: query },
+        params: { query, sortBy },
       });
       setData(response.data);
     } catch (error) {
-      console.log("Error al consultar el servidor");
+      setError(String(error));
     } finally {
       setLoading(false);
     }
@@ -58,10 +60,20 @@ function App() {
           <FaSearch />
         </button>
       </form>
+      <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+        <option value="relevance">Relevancia</option>
+        <option value="price_asc">Menor precio</option>
+        <option value="price_desc">Mayor precio</option>
+      </select>
       {loading && (
-        <div className="font-semibold text-gray-600 dark:text-gray-400">
+        <section className="font-semibold text-gray-600 dark:text-gray-400">
           Buscando productos para "{query}"
-        </div>
+        </section>
+      )}
+      {error && (
+        <section className="rounded border px-4 py-3 font-semibold bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200">
+          {error}
+        </section>
       )}
       {data && (
         <div className="bg-white dark:bg-gray-900 p-4 rounded">
