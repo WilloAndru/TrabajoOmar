@@ -1,6 +1,6 @@
 import { FaSearch } from "react-icons/fa";
-import axios from "axios";
 import { useState } from "react";
+import { useSearch } from "../hooks/useSearch";
 
 interface Product {
   name: string;
@@ -10,36 +10,20 @@ interface Product {
   link: string;
 }
 
-interface ScrapeResult {
-  products: Product[];
-}
-
-const API_URL = import.meta.env.VITE_API_URL;
-
 export default function Table() {
+  const { data, loading, error, search } = useSearch();
   const [query, setQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("price_asc");
-  const [data, setData] = useState<ScrapeResult | null>(null);
-  const [error, setError] = useState<string>("");
 
   // Busqueda
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (!query.trim()) return;
-
-    try {
-      const response = await axios.get<ScrapeResult>(`${API_URL}/search`, {
-        params: { query: `"${query}"`, sortBy },
-      });
-      setData(response.data);
-    } catch (error) {
-      setError(String(error));
-    }
+    search(query, sortBy);
   };
 
   return (
-    <div>
+    <main className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col p-4 gap-6 transition-colors">
       <form
         onSubmit={handleSearch}
         className="flex border rounded overflow-hidden"
@@ -100,6 +84,6 @@ export default function Table() {
           </tbody>
         </table>
       </div>
-    </div>
+    </main>
   );
 }

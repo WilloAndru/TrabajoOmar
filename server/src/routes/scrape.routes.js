@@ -1,8 +1,12 @@
 import express from "express";
-import { searchProduct } from "../controllers/scrape.controller.js";
+import {
+  searchProductsExito,
+  searchTotalCountExito,
+} from "../controllers/exito.controller.js";
 
 const router = express.Router();
 
-router.get("/search", searchProduct);
+router.get("/searchProductsExito", searchProductsExito);
+router.get("/totalCountExito", searchTotalCountExito);
 
 export default router;
