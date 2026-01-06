@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { api } from "../api/api";
 
 interface Product {
@@ -13,33 +13,32 @@ interface ScrapeResult {
   products: Product[];
 }
 
-export const useSearch = () => {
+export const useSearch = (query: string, sortBy: string) => {
   const [data, setData] = useState<ScrapeResult | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const controllerRef = useRef<AbortController | null>(null);
+  useEffect(() => {
+    if (!query.trim()) return;
 
-  const search = useCallback(async (query: string, sortBy: string) => {
-    controllerRef.current?.abort();
-    const controller = new AbortController();
-    controllerRef.current = controller;
+    const fetchSearchProducts = async () => {
+      setLoading(true);
+      setError(null);
 
-    setLoading(true);
-    setError(null);
+      try {
+        const response = await api.get<ScrapeResult>("/searchProductsExito", {
+          params: { query: `"${query}"`, sortBy },
+        });
+        setData(response.data);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    try {
-      const response = await api.get<ScrapeResult>("/searchProductsExito", {
-        params: { query: `"${query}"`, sortBy },
-        signal: controller.signal,
-      });
-      setData(response.data);
-    } catch (err: any) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    fetchSearchProducts();
+  }, [query, sortBy]);
 
-  return { data, loading, error, search };
+  return { data, loading, error };
 };

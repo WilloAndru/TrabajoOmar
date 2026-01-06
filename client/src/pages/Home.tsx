@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 export default function Home() {
   const { count, loading, error, fetchTotalCount } = useTotalCount();
   const [query, setQuery] = useState<string>("");
+  const [waitingTime, setWaitingTime] = useState<number>(0);
 
   const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
   const SUPER_MARKETS = [
@@ -87,12 +88,13 @@ export default function Home() {
       {count && (
         <section className="flex flex-col gap-2 rounded bg-white dark:bg-gray-900 p-4 pt-2">
           <h2>{query.charAt(0).toUpperCase() + query.slice(1)}</h2>
-          <Exito count={Number(count)} />
+          <Exito count={count} setWaitingTime={setWaitingTime} />
           <Link
             to="/table"
             state={{
               query,
               selectedMarkets: Array.from(selectedMarkets),
+              waitingTime,
             }}
             className="px-4 py-2 rounded bg-emerald-400 hover:bg-emerald-300 font-bold text-center"
           >

@@ -1,6 +1,7 @@
-import { FaSearch } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearch } from "../hooks/useSearch";
+import { useLocation } from "react-router-dom";
+import { getTime } from "../utils/getTime";
 
 interface Product {
   name: string;
@@ -10,39 +11,51 @@ interface Product {
   link: string;
 }
 
-export default function Table() {
-  const { data, loading, error, search } = useSearch();
-  const [query, setQuery] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("price_asc");
+type LocationState = {
+  query: string;
+  selectedMarkets: number[];
+  waitingTime: number;
+};
 
-  // Busqueda
-  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    search(query, sortBy);
-  };
+export default function Table() {
+  const location = useLocation();
+  const { query, selectedMarkets, waitingTime } =
+    location.state as LocationState;
+  const { data, loading, error } = useSearch(query, "price_asc");
+
+  // Logica de contador para tiempo restante
+  const [remaining, setRemaining] = useState(waitingTime);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRemaining((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Interfaz de carga
+  if (loading) {
+    return (
+      <main className="w-full bg-gray-200 dark:bg-gray-800 h-screen flex flex-col items-center justify-center gap-2 text-center">
+        <h2>Buscando productos para "{query}"</h2>
+        {remaining > 0 ? (
+          <h4>Quedan aproximadamente {getTime(remaining)}</h4>
+        ) : (
+          <h4>Porfavor espere mas tiempo o reinicie la busqueda</h4>
+        )}
+      </main>
+    );
+  }
 
   return (
     <main className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col p-4 gap-6 transition-colors">
-      <form
-        onSubmit={handleSearch}
-        className="flex border rounded overflow-hidden"
-      >
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          type="text"
-          className="w-70 rounded px-4 focus:outline-0"
-          placeholder="Ingrese el producto a buscar"
-        />
-        <button className="p-3 bg-emerald-400 border-l hover:bg-emerald-300">
-          <FaSearch />
-        </button>
-      </form>
       <div className="bg-white dark:bg-gray-900 p-4 rounded text-xs">
-        <section className="flex gap-2 items-center mb-2">
-          <img className="h-10" src="/exito.png" alt="exito" />
-        </section>
         <table className="min-w-full bg-white dark:bg-gray-800 rounded overflow-hidden">
           <thead className="bg-gray-200 dark:bg-gray-700">
             <tr>

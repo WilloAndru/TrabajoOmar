@@ -1,19 +1,8 @@
 import { useState } from "react";
 import { api } from "../api/api";
 
-interface Product {
-  name: string;
-  supermercado: string;
-  price: string;
-  pricePerUnit: string;
-  link: string;
-}
-interface ScrapeResult {
-  products: Product[];
-}
-
 export const useTotalCount = () => {
-  const [count, setCount] = useState<ScrapeResult | null>(null);
+  const [count, setCount] = useState<number>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
