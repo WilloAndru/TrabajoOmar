@@ -3,9 +3,11 @@ import { FaSearch } from "react-icons/fa";
 import Theme from "../components/Theme";
 import Brand from "../components/Brand";
 import { useTotalCount } from "../hooks/useTotalCount";
+import Exito from "../components/Exito";
+import { Link } from "react-router-dom";
 
 export default function Home() {
-  const { data, loading, error, fetchTotalCount } = useTotalCount();
+  const { count, loading, error, fetchTotalCount } = useTotalCount();
   const [query, setQuery] = useState<string>("");
 
   const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
@@ -30,7 +32,7 @@ export default function Home() {
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!query.trim()) return;
-    fetchTotalCount(query);
+    fetchTotalCount(`"${query}"`);
   };
 
   return (
@@ -62,7 +64,7 @@ export default function Home() {
       )}
       {loading && (
         <section className="font-semibold text-gray-600 dark:text-gray-400">
-          Buscando productos para "{query}"
+          Calculando tiempo de busqueda para "{query}"
         </section>
       )}
       {selectedMarkets.size > 0 && (
@@ -81,6 +83,22 @@ export default function Home() {
             <FaSearch />
           </button>
         </form>
+      )}
+      {count && (
+        <section className="flex flex-col gap-2 rounded bg-white dark:bg-gray-900 p-4 pt-2">
+          <h2>{query.charAt(0).toUpperCase() + query.slice(1)}</h2>
+          <Exito count={Number(count)} />
+          <Link
+            to="/table"
+            state={{
+              query,
+              selectedMarkets: Array.from(selectedMarkets),
+            }}
+            className="px-4 py-2 rounded bg-emerald-400 hover:bg-emerald-300 font-bold text-center"
+          >
+            Buscar
+          </Link>
+        </section>
       )}
     </main>
   );

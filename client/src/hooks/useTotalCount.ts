@@ -13,7 +13,7 @@ interface ScrapeResult {
 }
 
 export const useTotalCount = () => {
-  const [data, setData] = useState<ScrapeResult | null>(null);
+  const [count, setCount] = useState<ScrapeResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,9 +28,7 @@ export const useTotalCount = () => {
 
     try {
       const response = await api.get("/totalCountExito", { params: { query } });
-      console.log("adsf", response.data);
-
-      setData(response.data);
+      setCount(response.data);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -38,5 +36,5 @@ export const useTotalCount = () => {
     }
   };
 
-  return { data, loading, error, fetchTotalCount };
+  return { count, loading, error, fetchTotalCount };
 };

@@ -111,12 +111,11 @@ export const getTotalCountExito = async (query) => {
     )}&sort=score_desc&page=0`;
 
     await page.goto(url, { waitUntil: "networkidle2" });
-    // Esperar un momento para asegurarnos de capturar la respuesta
-    await page.waitForTimeout(3000);
+    await new Promise((resolve) => setTimeout(resolve, 3000)); // esperar que responda la API
 
     return totalCount;
   } catch (err) {
-    console.error("Error getting totalCount:", err);
+    console.error("Error:", err);
     return 0;
   } finally {
     if (browser) await browser.close();
