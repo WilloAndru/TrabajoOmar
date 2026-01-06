@@ -5,6 +5,7 @@ import Theme from "./components/Theme";
 
 interface Product {
   name: string;
+  supermercado: string;
   price: string;
   pricePerUnit: string;
   link: string;
@@ -21,8 +22,14 @@ function App() {
   const [query, setQuery] = useState<string>("");
   const [data, setData] = useState<ScrapeResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [sortBy, setSortBy] = useState("relevance");
+  const [sortBy, setSortBy] = useState<string>("score_desc");
   const [error, setError] = useState<string>("");
+
+  const SORT_OPTIONS = [
+    { value: "score_desc", label: "Relevancia" },
+    { value: "price_asc", label: "Menor precio" },
+    { value: "price_desc", label: "Mayor precio" },
+  ];
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -44,8 +51,28 @@ function App() {
   };
 
   return (
-    <div className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col p-4 gap-4 transition-colors">
+    <div className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col p-4 gap-6 transition-colors">
       <Theme />
+      <section className="flex gap-4 text-3xl font-bold items-center">
+        <img src="/icon.png" className="w-15" alt="icon" />
+        <h1>PriceCompare</h1>
+      </section>
+      <section className="rounded border overflow-hidden">
+        {SORT_OPTIONS.map(({ value, label }) => (
+          <button
+            key={value}
+            onClick={() => setSortBy(value)}
+            className={`px-3 py-1 transition-colors
+              ${
+                sortBy === value
+                  ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
+                  : "text-gray-600 dark:text-gray-400"
+              }`}
+          >
+            {label}
+          </button>
+        ))}
+      </section>
       <form
         onSubmit={handleSearch}
         className="flex border rounded overflow-hidden"
@@ -60,11 +87,6 @@ function App() {
           <FaSearch />
         </button>
       </form>
-      <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-        <option value="relevance">Relevancia</option>
-        <option value="price_asc">Menor precio</option>
-        <option value="price_desc">Mayor precio</option>
-      </select>
       {loading && (
         <section className="font-semibold text-gray-600 dark:text-gray-400">
           Buscando productos para "{query}"
@@ -76,46 +98,37 @@ function App() {
         </section>
       )}
       {data && (
-        <div className="bg-white dark:bg-gray-900 p-4 rounded">
+        <div className="bg-white dark:bg-gray-900 p-4 rounded text-xs">
           <section className="flex gap-2 items-center mb-2">
             <img className="h-10" src="/exito.png" alt="exito" />
             <h2>{data.totalCount} resultados</h2>
           </section>
-
           <table className="min-w-full bg-white dark:bg-gray-800 rounded overflow-hidden">
             <thead className="bg-gray-200 dark:bg-gray-700">
               <tr>
                 <th className="px-4 py-2 text-left">Id</th>
-                <th className="px-4 py-2 text-left">Nombre</th>
-                <th className="px-4 py-2 text-left">Precio final</th>
-                <th className="px-4 py-2 text-left">Precio por gr</th>
-                <th className="px-4 py-2 text-left">Link</th>
+                <th className="px-4 text-left">Nombre</th>
+                <th className="px-4 text-left">Mercado</th>
+                <th className="px-4 text-left">Precio final</th>
+                <th className="px-4 text-left">Precio por gr</th>
+                <th className="px-4 text-left">Link</th>
               </tr>
             </thead>
-
             <tbody>
               {data.products.map((p: Product, i: number) => (
                 <tr
                   key={i}
                   className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
-                  {/* Id */}
                   <td className="px-4 font-semibold">{i + 1}</td>
-
-                  {/* Nombre del producto */}
                   <td className="px-4 font-semibold">{p.name}</td>
-
-                  {/* Precio final */}
+                  <td className="px-4 font-semibold">Exito</td>
                   <td className="px-4 font-bold">
                     $ {Number(p.price).toLocaleString("es-CO")}
                   </td>
-
-                  {/* Precio por gramo */}
                   <td className="px-4 text-gray-600 dark:text-gray-400">
                     $ {Number(p.pricePerUnit).toLocaleString("es-CO")}
                   </td>
-
-                  {/* Link */}
                   <td className="px-5 py-2">
                     <a
                       href={`https://www.exito.com${p.link}`}

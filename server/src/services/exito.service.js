@@ -59,7 +59,7 @@ export const search = async (query, sortBy) => {
 
       const url = `https://www.exito.com/s?q=${encodeURIComponent(
         query
-      )}&sort=score_desc&page=${pageNumber}`;
+      )}&sort=${sortBy}&page=${pageNumber}`;
 
       await page.goto(url, { waitUntil: "networkidle2" });
       await new Promise((resolve) => setTimeout(resolve, 3000)); // esperar que responda la API
