@@ -25,13 +25,13 @@ export const getTotalCountExito = async (query) => {
   return totalCount;
 };
 
-export const getProductsExito = async (query, sortBy) => {
+export const getProductsExito = async (query) => {
   let products = [];
   let captured = false;
 
   const url = `https://www.exito.com/s?q=${encodeURIComponent(
     query
-  )}&sort=${sortBy}&page=0`;
+  )}&sort=price_asc&page=0`;
 
   await runWithPuppeteer(url, async (response) => {
     const resUrl = response.url();

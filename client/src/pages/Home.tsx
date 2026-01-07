@@ -20,6 +20,9 @@ export default function Home() {
     { img: "/alkosto.png", label: "Exito" },
   ];
   const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
+  const selectedLabels = SUPER_MARKETS.filter((_, index) =>
+    selectedMarkets.has(index)
+  ).map((market) => market.label);
 
   // Maneja la logica de seleccion de supermercados
   const toggleMarket = (id: number) => {
@@ -115,7 +118,7 @@ export default function Home() {
             to="/table"
             state={{
               query,
-              selectedMarkets: Array.from(selectedMarkets),
+              selectedLabels,
               waitingTime,
             }}
             className="px-4 py-2 rounded bg-emerald-400 hover:bg-emerald-300 font-bold text-center"

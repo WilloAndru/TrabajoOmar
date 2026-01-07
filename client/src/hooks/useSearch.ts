@@ -9,12 +9,8 @@ interface Product {
   link: string;
 }
 
-interface ScrapeResult {
-  products: Product[];
-}
-
-export const useSearch = (query: string, sortBy: string) => {
-  const [data, setData] = useState<ScrapeResult | null>(null);
+export const useSearch = (query: string, selectedLabels: string[]) => {
+  const [data, setData] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,10 +22,13 @@ export const useSearch = (query: string, sortBy: string) => {
       setError(null);
 
       try {
-        const response = await api.get<ScrapeResult>("/searchProductsExito", {
-          params: { query: `"${query}"`, sortBy },
-        });
-        setData(response.data);
+        let listDatas: Product[] = [];
+        for (const label of selectedLabels) {
+          const url = `/searchProducts${label}`;
+          const response = await api.get(url, { params: { query } });
+          listDatas.push(...response.data.products);
+        }
+        setData(listDatas);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {
@@ -38,7 +37,7 @@ export const useSearch = (query: string, sortBy: string) => {
     };
 
     fetchSearchProducts();
-  }, [query, sortBy]);
+  }, [query]);
 
   return { data, loading, error };
 };

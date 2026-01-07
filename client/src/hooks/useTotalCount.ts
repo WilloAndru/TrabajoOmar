@@ -15,10 +15,7 @@ export const useTotalCount = () => {
     query: string,
     selectedObjects: SelectedMarket[]
   ) => {
-    if (!query) {
-      setError("No hay consulta");
-      return;
-    }
+    if (!query) return;
 
     setLoading(true);
     setError(null);

@@ -13,7 +13,7 @@ interface Product {
 
 type LocationState = {
   query: string;
-  selectedMarkets: number[];
+  selectedLabels: string[];
   waitingTime: number;
 };
 
@@ -23,8 +23,8 @@ export default function Table() {
   // Ruta protegida
   if (!state) return <Navigate to="/" replace />;
 
-  const { query, selectedMarkets, waitingTime } = state;
-  const { data, loading, error } = useSearch(query, "price_asc");
+  const { query, selectedLabels, waitingTime } = state;
+  const { data, loading, error } = useSearch(query, selectedLabels);
 
   // Logica de contador para tiempo restante en loading
   const [remaining, setRemaining] = useState(waitingTime);
@@ -72,7 +72,7 @@ export default function Table() {
             </tr>
           </thead>
           <tbody>
-            {data?.products.map((p: Product, i: number) => (
+            {data.map((p: Product, i: number) => (
               <tr
                 key={i}
                 className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
