@@ -6,7 +6,7 @@ export const useTotalCount = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTotalCount = async (query: string) => {
+  const fetchTotalCount = async (query: string, supermarket: string) => {
     if (!query) {
       setError("No hay consulta");
       return;
@@ -16,10 +16,13 @@ export const useTotalCount = () => {
     setError(null);
 
     try {
-      const response = await api.get("/totalCountExito", { params: { query } });
+      const url = `/totalCount${supermarket}`;
+      const response = await api.get(url, { params: { query } });
+
       setCount(response.data);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err));
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
     } finally {
       setLoading(false);
     }

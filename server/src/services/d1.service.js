@@ -12,25 +12,13 @@ export const getTotalCountD1 = async (query) => {
     },
   });
 
+  if (!res.ok) {
+    throw new Error(`D1 response error: ${res.status}`);
+  }
+
   const html = await res.text();
-
-  // Extrae TODOS los bloques product serializados
-  const matches = html.match(/\{\\\"product\\\":\{.*?\}\}/g);
-
-  if (!matches) return [];
-
-  const products = matches
-    .map((m) => {
-      try {
-        const clean = m.replace(/\\"/g, '"');
-        return JSON.parse(clean).product;
-      } catch {
-        return null;
-      }
-    })
-    .filter(Boolean);
-
-  return products;
+  const match = html.match(/\\"itemsFound\\":\s*(\d+)/i);
+  return match ? Number(match[1]) : 0;
 };
 
 export const getProductsD1 = async (query) => {

@@ -12,11 +12,11 @@ export default function Home() {
 
   const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
   const SUPER_MARKETS = [
-    { img: "/exito.png" },
-    { img: "/d1.png" },
-    { img: "/jumbo.png" },
-    { img: "/olimpica.png" },
-    { img: "/alkosto.png" },
+    { img: "/exito.png", label: "Exito" },
+    { img: "/d1.png", label: "D1" },
+    { img: "/jumbo.png", label: "Exito" },
+    { img: "/olimpica.png", label: "Exito" },
+    { img: "/alkosto.png", label: "Exito" },
   ];
 
   // Maneja la logica de seleccion de supermercados
@@ -32,7 +32,7 @@ export default function Home() {
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!query.trim()) return;
-    fetchTotalCount(`"${query}"`);
+    fetchTotalCount(query, SUPER_MARKETS[1].label);
   };
 
   return (

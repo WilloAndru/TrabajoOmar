@@ -1,6 +1,6 @@
 import { getTotalCountD1 } from "../services/d1.service.js";
 
-export const searchTotalCountD1 = async () => {
+export const searchTotalCountD1 = async (req, res) => {
   const { query } = req.query;
 
   if (!query) {
@@ -11,6 +11,8 @@ export const searchTotalCountD1 = async () => {
     const response = await getTotalCountD1(query);
     return res.json(response);
   } catch (err) {
-    return res.status(500).json({ error: "Error en el servicio de exito" });
+    return res.status(500).json({
+      error: "Error en el servicio de D1",
+    });
   }
 };

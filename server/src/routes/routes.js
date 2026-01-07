@@ -7,8 +7,8 @@ import { searchTotalCountD1 } from "../controllers/d1.controller.js";
 
 const router = express.Router();
 
+router.get("/totalCountD1", searchTotalCountD1);
 router.get("/searchProductsExito", searchProductsExito);
 router.get("/totalCountExito", searchTotalCountExito);
-router.get("/totalCountD1", searchTotalCountD1);
 
 export default router;
