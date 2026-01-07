@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import Theme from "../components/Theme";
 import Brand from "../components/Brand";
 import { useTotalCount } from "../hooks/useTotalCount";
 import Exito from "../components/Exito";
 import { Link } from "react-router-dom";
 
 export default function Home() {
-  const { count, loading, error, fetchTotalCount } = useTotalCount();
   const [query, setQuery] = useState<string>("");
-  const [waitingTime, setWaitingTime] = useState<number>(0);
+  const { count, loading, error, fetchTotalCount } = useTotalCount();
+  const [waitingTime, setWaitingTime] = useState<number>(0); // Tiempo de espera para todos los resultados
 
   const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
   const SUPER_MARKETS = [
@@ -38,8 +37,8 @@ export default function Home() {
 
   return (
     <main className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col p-4 gap-6 transition-colors">
-      <Theme />
       <Brand />
+      {/* Selector de supermercados */}
       <div className="flex gap-3">
         {SUPER_MARKETS.map((item, i) => {
           const isActive = selectedMarkets.has(i);
@@ -68,6 +67,7 @@ export default function Home() {
           Calculando tiempo de busqueda para "{query}"
         </section>
       )}
+      {/* Barra de busqueda */}
       {selectedMarkets.size > 0 && (
         <form
           onSubmit={handleSearch}
@@ -85,6 +85,7 @@ export default function Home() {
           </button>
         </form>
       )}
+      {/* Cantidad de resultados encontrados */}
       {count && (
         <section className="flex flex-col gap-2 rounded bg-white dark:bg-gray-900 p-4 pt-2">
           <h2>{query.charAt(0).toUpperCase() + query.slice(1)}</h2>

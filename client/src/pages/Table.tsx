@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearch } from "../hooks/useSearch";
-import { useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { getTime } from "../utils/getTime";
 
 interface Product {
@@ -19,11 +19,14 @@ type LocationState = {
 
 export default function Table() {
   const location = useLocation();
-  const { query, selectedMarkets, waitingTime } =
-    location.state as LocationState;
+  const state = location.state as LocationState;
+  // Ruta protegida
+  if (!state) return <Navigate to="/" replace />;
+
+  const { query, selectedMarkets, waitingTime } = state;
   const { data, loading, error } = useSearch(query, "price_asc");
 
-  // Logica de contador para tiempo restante
+  // Logica de contador para tiempo restante en loading
   const [remaining, setRemaining] = useState(waitingTime);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -56,6 +59,7 @@ export default function Table() {
   return (
     <main className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col p-4 gap-6 transition-colors">
       <div className="bg-white dark:bg-gray-900 p-4 rounded text-xs">
+        <h4 className="mb-2">Resultados para {query}</h4>
         <table className="min-w-full bg-white dark:bg-gray-800 rounded overflow-hidden">
           <thead className="bg-gray-200 dark:bg-gray-700">
             <tr>

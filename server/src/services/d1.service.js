@@ -1,26 +1,67 @@
-import { runWithPuppeteer } from "../utils/puppeteerRunner.js";
+import { fetch } from "undici";
 
 export const getTotalCountD1 = async (query) => {
-  let totalCount = 0;
-  let captured = false;
-
-  const url = `https://www.exito.com/s?q=${encodeURIComponent(
+  const url = `https://domicilios.tiendasd1.com/search?name=${encodeURIComponent(
     query
-  )}&sort=score_desc&page=0`;
+  )}`;
 
-  await runWithPuppeteer(url, async (response) => {
-    const resUrl = response.url();
-
-    if (
-      !captured &&
-      resUrl.includes("/api/graphql") &&
-      resUrl.includes("SearchQuery")
-    ) {
-      captured = true;
-      const json = await response.json();
-      totalCount = json?.data?.search?.products?.pageInfo?.totalCount ?? 0;
-    }
+  const res = await fetch(url, {
+    headers: {
+      "user-agent": "Mozilla/5.0",
+      accept: "text/html",
+    },
   });
 
-  return totalCount;
+  const html = await res.text();
+
+  // Extrae TODOS los bloques product serializados
+  const matches = html.match(/\{\\\"product\\\":\{.*?\}\}/g);
+
+  if (!matches) return [];
+
+  const products = matches
+    .map((m) => {
+      try {
+        const clean = m.replace(/\\"/g, '"');
+        return JSON.parse(clean).product;
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+
+  return products;
+};
+
+export const getProductsD1 = async (query) => {
+  const url = `https://domicilios.tiendasd1.com/search?name=${encodeURIComponent(
+    query
+  )}`;
+
+  const res = await fetch(url, {
+    headers: {
+      "user-agent": "Mozilla/5.0",
+      accept: "text/html",
+    },
+  });
+
+  const html = await res.text();
+
+  // Extrae TODOS los bloques product serializados
+  const matches = html.match(/\{\\\"product\\\":\{.*?\}\}/g);
+
+  if (!matches) return [];
+
+  const products = matches
+    .map((m) => {
+      try {
+        const clean = m.replace(/\\"/g, '"');
+        return JSON.parse(clean).product;
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+
+  return products;
 };
