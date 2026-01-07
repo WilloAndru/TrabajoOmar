@@ -1,13 +1,6 @@
-import { runWithPuppeteer } from "../utils/puppeteerRunner.ts";
+import { runWithPuppeteer } from "../utils/puppeteerRunner.js";
 
-interface Product {
-  name: string;
-  price: number;
-  pricePerUnit: string | null;
-  link: string;
-}
-
-export const getTotalCountExito = async (query: string) => {
+export const getTotalCountExito = async (query) => {
   let totalCount = 0;
   let captured = false;
 
@@ -15,7 +8,7 @@ export const getTotalCountExito = async (query: string) => {
     query
   )}&sort=score_desc&page=0`;
 
-  await runWithPuppeteer(url, async (response: any) => {
+  await runWithPuppeteer(url, async (response) => {
     const resUrl = response.url();
 
     if (
@@ -32,8 +25,8 @@ export const getTotalCountExito = async (query: string) => {
   return totalCount;
 };
 
-export const getProductsExito = async (query: string, sortBy: string) => {
-  let products: Product[] = [];
+export const getProductsExito = async (query, sortBy) => {
+  let products = [];
   let captured = false;
 
   const url = `https://www.exito.com/s?q=${encodeURIComponent(
@@ -52,11 +45,11 @@ export const getProductsExito = async (query: string, sortBy: string) => {
       const json = await response.json();
       const edges = json?.data?.search?.products?.edges || [];
 
-      products = edges.map((edge: any) => {
+      products = edges.map((edge) => {
         const p = edge.node;
         const offer = p.items?.[0]?.sellers?.[0]?.commertialOffer || {};
         const factorProp = p.properties?.find(
-          (pr: any) => pr.name === "Factor Neto PUM"
+          (pr) => pr.name === "Factor Neto PUM"
         );
         const factor = parseFloat(factorProp?.values?.[0] ?? "1");
 

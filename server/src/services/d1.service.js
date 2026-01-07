@@ -1,13 +1,6 @@
-import { runWithPuppeteer } from "../utils/puppeteerRunner.ts";
+import { runWithPuppeteer } from "../utils/puppeteerRunner.js";
 
-interface Product {
-  name: string;
-  price: number;
-  pricePerUnit: string | null;
-  link: string;
-}
-
-export const getTotalCountD1 = async (query: string) => {
+export const getTotalCountD1 = async (query) => {
   let totalCount = 0;
   let captured = false;
 
@@ -15,7 +8,7 @@ export const getTotalCountD1 = async (query: string) => {
     query
   )}&sort=score_desc&page=0`;
 
-  await runWithPuppeteer(url, async (response: any) => {
+  await runWithPuppeteer(url, async (response) => {
     const resUrl = response.url();
 
     if (

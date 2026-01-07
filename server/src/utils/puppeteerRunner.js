@@ -1,9 +1,6 @@
 import puppeteer from "puppeteer";
 
-export async function runWithPuppeteer(
-  url: string,
-  onResponse: (response: any) => Promise<void>
-) {
+export async function runWithPuppeteer(url, onResponse) {
   let browser;
 
   try {
