@@ -12,7 +12,6 @@ export default function Home() {
   const { count, loading, error, fetchTotalCount } = useTotalCount();
   const [waitingTime, setWaitingTime] = useState<number[]>([]); // Tiempo de espera para cada resultado
 
-  const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
   const SUPER_MARKETS = [
     { img: "/exito.png", label: "Exito" },
     { img: "/d1.png", label: "D1" },
@@ -20,6 +19,7 @@ export default function Home() {
     { img: "/olimpica.png", label: "Exito" },
     { img: "/alkosto.png", label: "Exito" },
   ];
+  const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
 
   // Maneja la logica de seleccion de supermercados
   const toggleMarket = (id: number) => {
@@ -35,11 +35,12 @@ export default function Home() {
     e.preventDefault();
     if (!query.trim()) return;
 
-    const selectedLabels = SUPER_MARKETS.filter((_, index) =>
-      selectedMarkets.has(index)
-    ).map((market) => market.label);
+    const selectedObjects = SUPER_MARKETS.map((market, index) => ({
+      index,
+      label: market.label,
+    })).filter((market) => selectedMarkets.has(market.index));
 
-    fetchTotalCount(query, selectedLabels);
+    fetchTotalCount(query, selectedObjects);
   };
 
   return (
@@ -75,7 +76,7 @@ export default function Home() {
         </section>
       )}
       {/* Barra de busqueda */}
-      {selectedMarkets.size > 0 && (
+      {selectedMarkets.size > 0 && !loading && (
         <form
           onSubmit={handleSearch}
           className="flex border rounded overflow-hidden"
@@ -93,9 +94,15 @@ export default function Home() {
         </form>
       )}
       {/* Cantidad de resultados encontrados */}
-      {count.length > 0 && selectedMarkets.size > 0 && (
+      {count.length > 0 && selectedMarkets.size > 0 && !loading && (
         <section className="flex flex-col gap-2 rounded bg-white dark:bg-gray-900 p-4 pt-2">
-          <h2>{query.charAt(0).toUpperCase() + query.slice(1)}</h2>
+          <div className="flex items-end justify-between">
+            <h2>{query.charAt(0).toUpperCase() + query.slice(1)}</h2>
+            <h6>
+              Tiempo total:{" "}
+              {getTime(waitingTime.reduce((acc, curr) => acc + curr, 0))}
+            </h6>
+          </div>
           <div className="grid grid-cols-2 gap-2">
             {selectedMarkets.has(0) && (
               <Exito count={count[0]} setWaitingTime={setWaitingTime} />
@@ -113,8 +120,7 @@ export default function Home() {
             }}
             className="px-4 py-2 rounded bg-emerald-400 hover:bg-emerald-300 font-bold text-center"
           >
-            Buscar en{" "}
-            {getTime(waitingTime.reduce((acc, curr) => acc + curr, 0))}
+            Buscar
           </Link>
         </section>
       )}

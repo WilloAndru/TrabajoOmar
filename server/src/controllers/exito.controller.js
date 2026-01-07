@@ -11,7 +11,7 @@ export const searchProductsExito = async (req, res) => {
   }
 
   try {
-    const response = await getProductsExito(query, sortBy);
+    const response = await getProductsExito(`"${query}"`, sortBy);
     return res.json(response);
   } catch (err) {
     res.status(500).json({ err: "Error en el servicio de exito" });
@@ -26,7 +26,7 @@ export const searchTotalCountExito = async (req, res) => {
   }
 
   try {
-    const response = await getTotalCountExito(query);
+    const response = await getTotalCountExito(`"${query}"`);
     return res.json(response);
   } catch (err) {
     res.status(500).json({ err: "Error en el servicio de exito" });
