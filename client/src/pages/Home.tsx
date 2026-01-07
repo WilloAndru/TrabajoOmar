@@ -3,12 +3,14 @@ import { FaSearch } from "react-icons/fa";
 import Brand from "../components/Brand";
 import { useTotalCount } from "../hooks/useTotalCount";
 import Exito from "../components/Exito";
+import D1 from "../components/D1";
 import { Link } from "react-router-dom";
+import { getTime } from "../utils/getTime";
 
 export default function Home() {
   const [query, setQuery] = useState<string>("");
   const { count, loading, error, fetchTotalCount } = useTotalCount();
-  const [waitingTime, setWaitingTime] = useState<number>(0); // Tiempo de espera para todos los resultados
+  const [waitingTime, setWaitingTime] = useState<number[]>([]); // Tiempo de espera para cada resultado
 
   const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
   const SUPER_MARKETS = [
@@ -32,7 +34,12 @@ export default function Home() {
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!query.trim()) return;
-    fetchTotalCount(query, SUPER_MARKETS[1].label);
+
+    const selectedLabels = SUPER_MARKETS.filter((_, index) =>
+      selectedMarkets.has(index)
+    ).map((market) => market.label);
+
+    fetchTotalCount(query, selectedLabels);
   };
 
   return (
@@ -86,10 +93,17 @@ export default function Home() {
         </form>
       )}
       {/* Cantidad de resultados encontrados */}
-      {count && (
+      {count.length > 0 && selectedMarkets.size > 0 && (
         <section className="flex flex-col gap-2 rounded bg-white dark:bg-gray-900 p-4 pt-2">
           <h2>{query.charAt(0).toUpperCase() + query.slice(1)}</h2>
-          <Exito count={count} setWaitingTime={setWaitingTime} />
+          <div className="grid grid-cols-2 gap-2">
+            {selectedMarkets.has(0) && (
+              <Exito count={count[0]} setWaitingTime={setWaitingTime} />
+            )}
+            {selectedMarkets.has(1) && (
+              <D1 count={count[1]} setWaitingTime={setWaitingTime} />
+            )}
+          </div>
           <Link
             to="/table"
             state={{
@@ -99,7 +113,8 @@ export default function Home() {
             }}
             className="px-4 py-2 rounded bg-emerald-400 hover:bg-emerald-300 font-bold text-center"
           >
-            Buscar
+            Buscar en{" "}
+            {getTime(waitingTime.reduce((acc, curr) => acc + curr, 0))}
           </Link>
         </section>
       )}
