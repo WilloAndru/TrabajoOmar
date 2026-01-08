@@ -19,82 +19,60 @@ export const getTotalCountD1 = async (query) => {
 
   const html = await res.text();
   const match = html.match(/\\"itemsFound\\":\s*(\d+)/i);
-  return match ? Number(match[1]) : 0;
+  const quantity = Number(match[1]);
+
+  const nombres = [
+    ...html
+      .matchAll(/\\"product\\":\{\\\"name\\\":\\"([^"]+)"/g)
+      .map((m) => m[1].replace(/\\+/g, "")),
+  ];
+
+  const precios = [...html.matchAll(/\\"price\\":\s*(\d+)/g)].map((m) =>
+    Number(m[1])
+  );
+
+  const qty = [...html.matchAll(/\\"subQty\\":\s*(\d+)/g)].map((m) =>
+    Number(m[1])
+  );
+  const pricePerUnit = precios
+    .slice(0, nombres.length)
+    .map((p, i) => (p / qty[i]).toFixed(3));
+
+  const skus = [...html.matchAll(/\\"sku\\":\\"(\d+)\\"/g)].map((m) => m[1]);
+  const links = skus.map((sku) => `https://domicilios.tiendasd1.com/p/${sku}`);
+
+  // Creamos la lista de objetos
+  const productos = nombres.map((name, i) => ({
+    name,
+    price: precios[i],
+    pricePerUnit: pricePerUnit[i],
+    link: links[i],
+  }));
+
+  console.log(productos);
+
+  return match ? quantity : 0;
 };
 
 export const getProductsD1 = async (query) => {
-  console.log("[getProductsD1] Iniciando búsqueda para:", query);
   const url = `https://domicilios.tiendasd1.com/search?name=${encodeURIComponent(
     query
   )}`;
-  console.log("[getProductsD1] URL:", url);
 
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
-
-  await page.setUserAgent(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/118.0.0.0 Safari/537.36"
-  );
-  await page.setViewport({ width: 1200, height: 800 });
-
-  await page.goto(url, { waitUntil: "networkidle2" });
-  console.log("[getProductsD1] Página cargada");
-
-  // Esperar que los productos estén presentes
-  try {
-    await page.waitForSelector('[data-testid="product-card"]', {
-      timeout: 5000,
-    });
-    console.log("[getProductsD1] Selector de productos encontrado");
-  } catch {
-    console.log("[getProductsD1] No se encontraron productos en el DOM");
-  }
-
-  const products = await page.evaluate(() => {
-    const items = Array.from(
-      document.querySelectorAll('[data-testid="product-card"]')
-    );
-    console.log(
-      "[getProductsD1][evaluate] Cantidad de elementos encontrados:",
-      items.length
-    );
-
-    return items.map((item, index) => {
-      const name =
-        item.querySelector('[data-testid="product-name"]')?.innerText?.trim() ||
-        null;
-      const priceText =
-        item
-          .querySelector('[data-testid="product-price"]')
-          ?.innerText?.replace(/\D/g, "") || null;
-      const price = priceText ? Number(priceText) : null;
-
-      const qtyText =
-        item.querySelector('[data-testid="product-quantity"]')?.innerText ||
-        null;
-      let subQty = null;
-      let unit = null;
-      if (qtyText) {
-        const match = qtyText.match(/([\d.,]+)\s*(g|kg|ml|l|unidad)/i);
-        if (match) {
-          subQty = Number(match[1].replace(",", ""));
-          unit = match[2];
-        }
-      }
-
-      console.log(`[getProductsD1][evaluate] Producto ${index + 1}:`, {
-        name,
-        price,
-        subQty,
-        unit,
-      });
-
-      return { name, price, subQty, unit };
-    });
+  const res = await fetch(url, {
+    headers: {
+      "user-agent": "Mozilla/5.0",
+      accept: "text/html",
+    },
   });
 
-  console.log("[getProductsD1] Productos extraídos:", products.length);
+  if (!res.ok) {
+    throw new Error(`D1 response error: ${res.status}`);
+  }
 
-  await browser.close();
-  return products;
+  const html = await res.text();
+  const match2 = html.match(/\\"product\\":\{\\\"name\\\":\\"([^"]+)"/);
+  console.log(match2);
+
+  return match ? Number(match[1]) : 0;
 };
