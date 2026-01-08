@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { useSearch } from "../hooks/useSearch";
 import { Navigate, useLocation } from "react-router-dom";
 import { getTime } from "../utils/getTime";
+import Select from "../components/Select";
 
 interface Product {
   name: string;
-  supermercado: string;
+  market: string;
   price: string;
   pricePerUnit: string;
   link: string;
@@ -58,8 +59,11 @@ export default function Table() {
 
   return (
     <main className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col p-4 gap-6 transition-colors">
-      <div className="bg-white dark:bg-gray-900 p-4 rounded text-xs">
-        <h4 className="mb-2">Resultados para {query}</h4>
+      <div className="bg-white dark:bg-gray-900 px-4 py-2 rounded text-xs">
+        <header className="flex justify-between mb-2 items-center">
+          <h4>Resultados para {query}</h4>
+          <Select />
+        </header>
         <table className="min-w-full bg-white dark:bg-gray-800 rounded overflow-hidden">
           <thead className="bg-gray-200 dark:bg-gray-700">
             <tr>
@@ -79,7 +83,7 @@ export default function Table() {
               >
                 <td className="px-4 font-semibold">{i + 1}</td>
                 <td className="px-4 font-semibold">{p.name}</td>
-                <td className="px-4 font-semibold">Exito</td>
+                <td className="px-4 font-semibold">{p.market}</td>
                 <td className="px-4 font-bold">
                   $ {Number(p.price).toLocaleString("es-CO")}
                 </td>
@@ -88,7 +92,7 @@ export default function Table() {
                 </td>
                 <td className="px-5 py-2">
                   <a
-                    href={`https://www.exito.com${p.link}`}
+                    href={p.link}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center w-full h-full hover:scale-120 transition-transform"

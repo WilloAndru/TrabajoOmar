@@ -3,7 +3,7 @@ import { api } from "../api/api";
 
 interface Product {
   name: string;
-  supermercado: string;
+  market: string;
   price: string;
   pricePerUnit: string;
   link: string;
@@ -26,7 +26,11 @@ export const useSearch = (query: string, selectedLabels: string[]) => {
         for (const label of selectedLabels) {
           const url = `/searchProducts${label}`;
           const response = await api.get(url, { params: { query } });
-          listDatas.push(...response.data.products);
+          const productsWithMarket = response.data.map((p: Product) => ({
+            ...p,
+            market: label,
+          }));
+          listDatas.push(...productsWithMarket);
         }
         setData(listDatas);
       } catch (err: unknown) {

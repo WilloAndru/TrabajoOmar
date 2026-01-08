@@ -57,11 +57,11 @@ export const getProductsExito = async (query) => {
           name: p.name,
           price: offer.Price || 0,
           pricePerUnit: factor > 0 ? (offer.Price / factor).toFixed(3) : null,
-          link: `/${p.slug}/p`,
+          link: `https://www.exito.com/${p.slug}/p`,
         };
       });
     }
   });
 
-  return { products };
+  return products;
 };
