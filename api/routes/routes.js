@@ -7,7 +7,10 @@ import {
   searchTotalCountD1,
   searchProductsD1,
 } from "../controllers/d1.controller.js";
-import { searchTotalCountJumbo } from "../controllers/jumbo.controller.js";
+import {
+  searchTotalCountJumbo,
+  searchProductsJumbo,
+} from "../controllers/jumbo.controller.js";
 
 const router = express.Router();
 
@@ -16,5 +19,6 @@ router.get("/searchProductsExito", searchProductsExito);
 router.get("/totalCountD1", searchTotalCountD1);
 router.get("/searchProductsD1", searchProductsD1);
 router.get("/totalCountJumbo", searchTotalCountJumbo);
+router.get("/searchProductsJumbo", searchProductsJumbo);
 
 export default router;

@@ -56,16 +56,21 @@ export const getProductsJumbo = async (query) => {
 
   // Calculamos el peso
   const pricePerUnitList = names.map((name, i) => {
-    const match = name.match(/x(\d+)g/);
-    console.log(name, match);
-
-    const qty = match ? Number(match[1]) : 0;
-
-    return qty ? qty / prices[i] : 1;
+    let qty = 1;
+    const match = name.match(/(?:x)?(\d+(?:\.\d+)?)\s*(g|kg)/i);
+    if (match) {
+      qty = Number(match[1]);
+      const unit = match[2].toLowerCase();
+      // Convertimos kg a gramos
+      if (unit === "kg") {
+        qty *= 1000;
+      }
+    }
+    return qty !== 1 && prices[i] ? Number((prices[i] / qty).toFixed(3)) : 1;
   });
 
   // Extraemos sku de cada producto y creamos links
-  const skus = [...json.matchAll(/\\"linkText\\":\\"(\d+)\\"/g)].map(
+  const skus = [...json.matchAll(/\\"linkText\\":\\"([^"]+)\\"/g)].map(
     (m) => m[1]
   );
   const links = skus.map((sku) => `https://www.jumbocolombia.com/${sku}/p`);
@@ -74,15 +79,9 @@ export const getProductsJumbo = async (query) => {
   const products = names.map((name, i) => ({
     name,
     price: prices[i] || 0,
-    pricePerUnitList: pricePerUnitList[i],
-    link: links[i] || "#",
+    pricePerUnit: pricePerUnitList[i],
+    link: links[i],
   }));
-};
 
-(async () => {
-  try {
-    await getProductsJumbo("cafe"); // <- tu query de prueba
-  } catch (err) {
-    console.error(err);
-  }
-})();
+  return products;
+};
