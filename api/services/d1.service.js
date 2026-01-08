@@ -18,9 +18,8 @@ export const getTotalCountD1 = async (query) => {
 
   const html = await res.text();
   const match = html.match(/\\"itemsFound\\":\s*(\d+)/i);
-  const quantity = Number(match[1]);
 
-  return match ? quantity : 0;
+  return match ? Number(match[1]) : 0;
 };
 
 export const getProductsD1 = async (query) => {

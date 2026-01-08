@@ -6,6 +6,7 @@ import Exito from "../components/Exito";
 import D1 from "../components/D1";
 import { Link } from "react-router-dom";
 import { getTime } from "../utils/getTime";
+import Jumbo from "../components/Jumbo";
 
 export default function Home() {
   const [query, setQuery] = useState<string>("");
@@ -15,7 +16,7 @@ export default function Home() {
   const SUPER_MARKETS = [
     { img: "/exito.png", label: "Exito" },
     { img: "/d1.png", label: "D1" },
-    { img: "/jumbo.png", label: "Exito" },
+    { img: "/jumbo.png", label: "Jumbo" },
     { img: "/olimpica.png", label: "Exito" },
     { img: "/alkosto.png", label: "Exito" },
   ];
@@ -112,6 +113,9 @@ export default function Home() {
             )}
             {selectedMarkets.has(1) && (
               <D1 count={count[1]} setWaitingTime={setWaitingTime} />
+            )}
+            {selectedMarkets.has(2) && (
+              <Jumbo count={count[2]} setWaitingTime={setWaitingTime} />
             )}
           </div>
           <Link
