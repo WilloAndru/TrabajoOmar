@@ -26,6 +26,27 @@ export default function Table() {
 
   const { query, selectedLabels, waitingTime } = state;
   const { data, loading, error } = useSearch(query, selectedLabels);
+  const [orderType, setOrderType] = useState<number>(1);
+
+  const sortedData = [...data].sort((a: Product, b: Product) => {
+    const priceA = Number(a.price);
+    const priceB = Number(b.price);
+    const unitA = Number(a.pricePerUnit);
+    const unitB = Number(b.pricePerUnit);
+
+    switch (orderType) {
+      case 1: // Menor precio
+        return priceA - priceB;
+      case 2: // Mayor precio
+        return priceB - priceA;
+      case 3: // Menor precio por unidad
+        return unitA - unitB;
+      case 4: // Mayor precio por unidad
+        return unitB - unitA;
+      default:
+        return 0;
+    }
+  });
 
   // Logica de contador para tiempo restante en loading
   const [remaining, setRemaining] = useState(waitingTime);
@@ -62,7 +83,7 @@ export default function Table() {
       <div className="bg-white dark:bg-gray-900 px-4 py-2 rounded text-xs">
         <header className="flex justify-between mb-2 items-center">
           <h4>Resultados para {query}</h4>
-          <Select />
+          <Select onChange={setOrderType} />
         </header>
         <table className="min-w-full bg-white dark:bg-gray-800 rounded overflow-hidden">
           <thead className="bg-gray-200 dark:bg-gray-700">
@@ -76,7 +97,7 @@ export default function Table() {
             </tr>
           </thead>
           <tbody>
-            {data.map((p: Product, i: number) => (
+            {sortedData.map((p: Product, i: number) => (
               <tr
                 key={i}
                 className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"

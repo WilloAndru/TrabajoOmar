@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FiSun, FiMoon } from "react-icons/fi";
 
 export default function Theme() {
   const [darkMode, setDarkMode] = useState(
@@ -15,7 +16,7 @@ export default function Theme() {
       onClick={() => setDarkMode((p) => !p)}
       className="px-4 py-2 rounded fixed top-1 right-1 bg-emerald-400 hover:bg-emerald-300 font-bold"
     >
-      {darkMode ? "Modo Claro" : "Modo Oscuro"}
+      {darkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
     </button>
   );
 }
