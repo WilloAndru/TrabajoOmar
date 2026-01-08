@@ -25,7 +25,7 @@ export default function Table() {
   if (!state) return <Navigate to="/" replace />;
 
   const { query, selectedLabels, waitingTime } = state;
-  const { data, loading, error } = useSearch(query, selectedLabels);
+  const { data, loading } = useSearch(query, selectedLabels);
   const [orderType, setOrderType] = useState<number>(1);
 
   const sortedData = [...data].sort((a: Product, b: Product) => {
