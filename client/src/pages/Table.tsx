@@ -59,8 +59,9 @@ export default function Table() {
   }
 
   return (
-    <main className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col p-4 gap-6 transition-colors">
-      <div className="bg-white dark:bg-gray-900 px-4 py-2 rounded text-xs">
+    <main className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col gap-2 transition-colors">
+      <header className="bg-emerald-500 w-full h-[44px]"></header>
+      <div className="bg-white dark:bg-gray-900 p-4 pt-2 rounded text-xs m-2">
         <header className="flex justify-between mb-2 items-center">
           <h4>Resultados para {query}</h4>
           <Select onChange={setOrderType} />

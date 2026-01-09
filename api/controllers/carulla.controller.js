@@ -1,6 +1,6 @@
-import { getProductsExito } from "../services/exito.service.js";
+import { getProductsCarulla } from "../services/carulla.service.js";
 
-export const searchProductsExito = async (req, res) => {
+export const searchProductsCarulla = async (req, res) => {
   const { query } = req.query;
 
   if (!query) {
@@ -8,7 +8,7 @@ export const searchProductsExito = async (req, res) => {
   }
 
   try {
-    const response = await getProductsExito(`"${query}"`);
+    const response = await getProductsCarulla(query);
     return res.json(response);
   } catch (err) {
     res.status(500).json({ err: "Error en el servicio de exito" });

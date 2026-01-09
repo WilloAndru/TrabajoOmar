@@ -12,7 +12,7 @@ export default function Home() {
     { img: "/d1.png", label: "D1" },
     { img: "/jumbo.png", label: "Jumbo" },
     { img: "/olimpica.png", label: "Olimpica" },
-    { img: "/alkosto.png", label: "Alkosto" },
+    { img: "/carulla.png", label: "Carulla" },
   ];
   const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
   const selectedLabels = SUPER_MARKETS.filter((_, index) =>

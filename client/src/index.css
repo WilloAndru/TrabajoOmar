@@ -10,6 +10,12 @@
   html.dark {
     @apply text-gray-100 bg-gray-800;
   }
+
+  @media (max-width: 900px) {
+    html {
+      font-size: 10px;
+    }
+  }
 }
 
 h1,
