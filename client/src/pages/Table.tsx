@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSearch } from "../hooks/useSearch";
 import { Navigate, useLocation } from "react-router-dom";
-import { getTime } from "../utils/getTime";
 import Select from "../components/Select";
 
 interface Product {
@@ -15,19 +14,20 @@ interface Product {
 type LocationState = {
   query: string;
   selectedLabels: string[];
-  waitingTime: number;
 };
 
 export default function Table() {
   const location = useLocation();
   const state = location.state as LocationState;
+
   // Ruta protegida
   if (!state) return <Navigate to="/" replace />;
 
-  const { query, selectedLabels, waitingTime } = state;
+  const { query, selectedLabels } = state;
   const { data, loading } = useSearch(query, selectedLabels);
   const [orderType, setOrderType] = useState<number>(1);
 
+  // Lista ordenada
   const sortedData = [...data].sort((a: Product, b: Product) => {
     const priceA = Number(a.price);
     const priceB = Number(b.price);
@@ -48,32 +48,12 @@ export default function Table() {
     }
   });
 
-  // Logica de contador para tiempo restante en loading
-  const [remaining, setRemaining] = useState(waitingTime);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   // Interfaz de carga
   if (loading) {
     return (
       <main className="w-full bg-gray-200 dark:bg-gray-800 h-screen flex flex-col items-center justify-center gap-2 text-center">
         <h2>Buscando productos para "{query}"</h2>
-        {remaining > 0 ? (
-          <h4>Quedan aproximadamente {getTime(remaining)}</h4>
-        ) : (
-          <h4>Porfavor espere mas tiempo o reinicie la busqueda</h4>
-        )}
+        <h4>Porfavor espere mas tiempo o reinicie la busqueda</h4>
       </main>
     );
   }

@@ -1,24 +1,18 @@
 import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import Brand from "../components/Brand";
-import { useTotalCount } from "../hooks/useTotalCount";
-import Exito from "../components/Exito";
-import D1 from "../components/D1";
-import { Link } from "react-router-dom";
-import { getTime } from "../utils/getTime";
-import Jumbo from "../components/Jumbo";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [query, setQuery] = useState<string>("");
-  const { count, loading, error, fetchTotalCount } = useTotalCount();
-  const [waitingTime, setWaitingTime] = useState<number[]>([]); // Tiempo de espera para cada resultado
+  const navigate = useNavigate();
 
   const SUPER_MARKETS = [
     { img: "/exito.png", label: "Exito" },
     { img: "/d1.png", label: "D1" },
     { img: "/jumbo.png", label: "Jumbo" },
     { img: "/olimpica.png", label: "Olimpica" },
-    { img: "/alkosto.png", label: "Exito" },
+    { img: "/alkosto.png", label: "Alkosto" },
   ];
   const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
   const selectedLabels = SUPER_MARKETS.filter((_, index) =>
@@ -39,12 +33,9 @@ export default function Home() {
     e.preventDefault();
     if (!query.trim()) return;
 
-    const selectedObjects = SUPER_MARKETS.map((market, index) => ({
-      index,
-      label: market.label,
-    })).filter((market) => selectedMarkets.has(market.index));
-
-    fetchTotalCount(query, selectedObjects);
+    navigate("/table", {
+      state: { query, selectedLabels },
+    });
   };
 
   return (
@@ -69,18 +60,8 @@ export default function Home() {
           );
         })}
       </div>
-      {error && (
-        <section className="rounded border px-4 py-3 font-semibold bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200">
-          {error}
-        </section>
-      )}
-      {loading && (
-        <section className="font-semibold text-gray-600 dark:text-gray-400">
-          Calculando tiempo de busqueda para "{query}"
-        </section>
-      )}
       {/* Barra de busqueda */}
-      {selectedMarkets.size > 0 && !loading && (
+      {selectedMarkets.size > 0 && (
         <form
           onSubmit={handleSearch}
           className="flex border rounded overflow-hidden"
@@ -96,43 +77,6 @@ export default function Home() {
             <FaSearch />
           </button>
         </form>
-      )}
-      {/* Cantidad de resultados encontrados */}
-      {count.length > 0 && selectedMarkets.size > 0 && !loading && (
-        <section className="flex flex-col gap-2 rounded bg-white dark:bg-gray-900 p-4 pt-2">
-          <div className="flex items-end justify-between">
-            <h2>{query.charAt(0).toUpperCase() + query.slice(1)}</h2>
-            <h6>
-              Tiempo total:{" "}
-              {getTime(waitingTime.reduce((acc, curr) => acc + curr, 0))}
-            </h6>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {selectedMarkets.has(0) && (
-              <Exito count={count[0]} setWaitingTime={setWaitingTime} />
-            )}
-            {selectedMarkets.has(1) && (
-              <D1 count={count[1]} setWaitingTime={setWaitingTime} />
-            )}
-            {selectedMarkets.has(2) && (
-              <Jumbo count={count[2]} setWaitingTime={setWaitingTime} />
-            )}
-            {selectedMarkets.has(3) && (
-              <Jumbo count={count[3]} setWaitingTime={setWaitingTime} />
-            )}
-          </div>
-          <Link
-            to="/table"
-            state={{
-              query,
-              selectedLabels,
-              waitingTime,
-            }}
-            className="px-4 py-2 rounded bg-emerald-400 hover:bg-emerald-300 font-bold text-center"
-          >
-            Buscar
-          </Link>
-        </section>
       )}
     </main>
   );
