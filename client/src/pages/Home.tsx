@@ -17,7 +17,7 @@ export default function Home() {
     { img: "/exito.png", label: "Exito" },
     { img: "/d1.png", label: "D1" },
     { img: "/jumbo.png", label: "Jumbo" },
-    { img: "/olimpica.png", label: "Exito" },
+    { img: "/olimpica.png", label: "Olimpica" },
     { img: "/alkosto.png", label: "Exito" },
   ];
   const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
@@ -116,6 +116,9 @@ export default function Home() {
             )}
             {selectedMarkets.has(2) && (
               <Jumbo count={count[2]} setWaitingTime={setWaitingTime} />
+            )}
+            {selectedMarkets.has(3) && (
+              <Jumbo count={count[3]} setWaitingTime={setWaitingTime} />
             )}
           </div>
           <Link

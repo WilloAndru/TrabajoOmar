@@ -29,37 +29,35 @@ export const getProductsOlimpica = async (query) => {
   const prices = [
     ...json.matchAll(/\\"TotalValuePlusInterestRate\\":\s*(\d+)/g),
   ].map((m) => Number(m[1]));
-  console.log(prices);
-
-  // Extraemos el peso
-  const qty = [
-    ...json.matchAll(/\{"name":"Factor Neto PUM","values":\["(\d+)"\]/g),
-  ]
-    .map((m) => Number(m[1]))
-    .slice(0, 16);
 
   // Calculamos el peso
-  const pricePerUnit = prices.map((price, i) => {
-    return Number((price / qty[i]).toFixed(3));
+  const pricePerUnitList = names.map((name, i) => {
+    let qty = 1;
+    const match = name.match(/(\d+(?:[.,]\d+)?)\s*(g|grs?|kg)\b/i);
+    if (match) {
+      qty = Number(match[1].replace(",", "."));
+      const unit = match[2].toLowerCase();
+      // Convertimos kg a gramos
+      if (unit === "kg") {
+        qty *= 1000;
+      }
+    }
+    return qty !== 1 && prices[i] ? Number((prices[i] / qty).toFixed(3)) : 1;
   });
 
   // Extraemos sku de cada producto y creamos links
-  const slugs = [...json.matchAll(/"slug":"([^"]+)"/g)]
-    .map((m) => m[1])
-    .slice(0, 16);
-  const links = slugs.map((slug) => `https://www.exito.com/${slug}/p`);
+  const skus = [...json.matchAll(/\\"linkText\\":\\"([^"]+)\\"/g)].map(
+    (m) => m[1]
+  );
+  const links = skus.map((sku) => `https://www.olimpica.com/${sku}/p`);
 
   // Evitamos error de pricePerUnit indefinido
   const products = names.map((name, i) => ({
     name,
     price: prices[i] || 0,
-    pricePerUnit: pricePerUnit[i] || 1,
+    pricePerUnit: pricePerUnitList[i] || 1,
     link: links[i],
   }));
 
   return products;
 };
-
-(async () => {
-  await getProductsOlimpica("cafe");
-})();
