@@ -2,9 +2,20 @@ import { runWithPuppeteer } from "../utils/puppeteerRunner.js";
 import { fetch } from "undici";
 
 export const getTotalCountExito = async (query) => {
-  const url = `https://www.exito.com/s?q=${encodeURIComponent(
-    query
-  )}&sort=score_desc&page=0`;
+  const variables = encodeURIComponent(
+    JSON.stringify({
+      first: 16,
+      after: "16",
+      sort: "score_desc",
+      term: query,
+      selectedFacets: [
+        { key: "channel", value: '{"salesChannel":"1","regionId":""}' },
+        { key: "locale", value: "es-CO" },
+      ],
+    })
+  );
+
+  const url = `https://www.exito.com/api/graphql?operationName=SearchQuery&variables=${variables}`;
 
   const res = await fetch(url, {
     headers: {
@@ -24,42 +35,69 @@ export const getTotalCountExito = async (query) => {
 };
 
 export const getProductsExito = async (query) => {
-  let products = [];
-  let captured = false;
+  const variables = encodeURIComponent(
+    JSON.stringify({
+      first: 16,
+      after: "16",
+      sort: "score_desc",
+      term: query,
+      selectedFacets: [
+        { key: "channel", value: '{"salesChannel":"1","regionId":""}' },
+        { key: "locale", value: "es-CO" },
+      ],
+    })
+  );
 
-  const url = `https://www.exito.com/s?q=${encodeURIComponent(
-    query
-  )}&sort=price_asc&page=0`;
+  const url = `https://www.exito.com/api/graphql?operationName=SearchQuery&variables=${variables}`;
 
-  await runWithPuppeteer(url, async (response) => {
-    const resUrl = response.url();
-
-    if (
-      !captured &&
-      resUrl.includes("/api/graphql") &&
-      resUrl.includes("SearchQuery")
-    ) {
-      captured = true;
-      const json = await response.json();
-      const edges = json?.data?.search?.products?.edges || [];
-
-      products = edges.map((edge) => {
-        const p = edge.node;
-        const offer = p.items?.[0]?.sellers?.[0]?.commertialOffer || {};
-        const factorProp = p.properties?.find(
-          (pr) => pr.name === "Factor Neto PUM"
-        );
-        const factor = parseFloat(factorProp?.values?.[0] ?? "1");
-
-        return {
-          name: p.name,
-          price: offer.Price || 0,
-          pricePerUnit: factor > 0 ? (offer.Price / factor).toFixed(3) : null,
-          link: `https://www.exito.com/${p.slug}/p`,
-        };
-      });
-    }
+  const res = await fetch(url, {
+    headers: {
+      "user-agent": "Mozilla/5.0",
+      accept: "text/html",
+    },
   });
+
+  if (!res.ok) {
+    throw new Error(`Exito response error: ${res.status}`);
+  }
+
+  const json = await res.text();
+
+  // Extraemos los nombres y arreglamos formato
+  const names = [...json.matchAll(/},\"name\":\"([^\"]+)\"/g)]
+    .map((m) => m[1])
+    .slice(0, 16);
+
+  // Extraemos precios
+  const prices = [...json.matchAll(/,"price":\s*(\d+(\.\d+)?)/g)]
+    .map((m) => Number(m[1]))
+    .slice(0, 16);
+
+  // Extraemos el peso
+  const qty = [
+    ...json.matchAll(/\{"name":"Factor Neto PUM","values":\["(\d+)"\]/g),
+  ]
+    .map((m) => Number(m[1]))
+    .slice(0, 16);
+
+  // Calculamos el peso
+  const pricePerUnit = prices.map((price, i) => {
+    return Number((price / qty[i]).toFixed(3));
+  });
+
+  // Extraemos sku de cada producto y creamos links
+  const slugs = [...json.matchAll(/"slug":"([^"]+)"/g)]
+    .map((m) => m[1])
+    .slice(0, 16);
+  const links = slugs.map((slug) => `https://www.exito.com/${slug}/p`);
+
+  // Evitamos error de pricePerUnit indefinido
+  const products = names.map((name, i) => ({
+    name,
+    price: prices[i] || 0,
+    pricePerUnit: pricePerUnit[i] || 1,
+    link: links[i],
+  }));
 
   return products;
 };
