@@ -1,4 +1,3 @@
-import { runWithPuppeteer } from "../utils/puppeteerRunner.js";
 import { fetch } from "undici";
 
 export const getTotalCountExito = async (query) => {

@@ -11,6 +11,7 @@ import {
   searchTotalCountJumbo,
   searchProductsJumbo,
 } from "../controllers/jumbo.controller.js";
+import { searchProductsOlimpica } from "../controllers/olimpica.controller.js";
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.get("/totalCountD1", searchTotalCountD1);
 router.get("/searchProductsD1", searchProductsD1);
 router.get("/totalCountJumbo", searchTotalCountJumbo);
 router.get("/searchProductsJumbo", searchProductsJumbo);
+router.get("/searchProductsOlimpica", searchProductsOlimpica);
 
 export default router;
