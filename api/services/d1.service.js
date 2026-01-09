@@ -1,79 +1,80 @@
 import { fetch } from "undici";
 
-export const getTotalCountD1 = async (query) => {
-  const url = `https://domicilios.tiendasd1.com/search?name=${encodeURIComponent(
-    query
-  )}`;
-
-  const res = await fetch(url, {
-    headers: {
-      "user-agent": "Mozilla/5.0",
-      accept: "text/html",
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error(`D1 response error: ${res.status}`);
-  }
-
-  const html = await res.text();
-  const match = html.match(/\\"itemsFound\\":\s*(\d+)/i);
-
-  return match ? Number(match[1]) : 0;
-};
-
 export const getProductsD1 = async (query) => {
-  const url = `https://domicilios.tiendasd1.com/search?name=${encodeURIComponent(
-    query
-  )}`;
+  const itemsPerPage = 50;
+  let currentPage = 1;
+  let totalPages = null;
+  let products = [];
 
-  const res = await fetch(url, {
-    headers: {
-      "user-agent": "Mozilla/5.0",
-      accept: "text/html",
-    },
-  });
+  do {
+    const url = `https://domicilios.tiendasd1.com/search?name=${encodeURIComponent(
+      query
+    )}&currentPage=${currentPage}`;
 
-  if (!res.ok) {
-    throw new Error(`D1 response error: ${res.status}`);
-  }
+    const res = await fetch(url, {
+      headers: {
+        "user-agent": "Mozilla/5.0",
+        accept: "text/html",
+      },
+    });
 
-  const html = await res.text();
-  // Extraemos los nombres y arreglamos formato
-  const names = [
-    ...html
-      .matchAll(/\\"product\\":\{\\\"name\\\":\\"([^"]+)"/g)
-      .map((m) => m[1].replace(/\\+/g, "")),
-  ];
+    if (!res.ok) {
+      throw new Error(`D1 response error: ${res.status}`);
+    }
 
-  // Extraemos precios
-  const prices = [...html.matchAll(/\\"price\\":\s*(\d+)/g)].map((m) =>
-    Number(m[1])
-  );
+    const html = await res.text();
 
-  // Extraemos cantidad
-  const qty = [...html.matchAll(/\\"subQty\\":\s*(\d+)/g)].map((m) =>
-    Number(m[1])
-  );
+    // Cuando es la primera iteracion, calculamos el total de paginas
+    if (totalPages === null) {
+      const match = html.match(/\\"itemsFound\\":\s*(\d+)/i);
+      if (!match) break;
 
-  // Si hay cantidad calculamos precio por unidad
-  let pricePerUnit = [];
-  if (qty[0]) {
-    pricePerUnit = prices
-      .slice(0, names.length)
-      .map((p, i) => Number((p / qty[i]).toFixed(3)));
-  }
+      const itemsFound = Number(match[1]);
+      totalPages = Math.ceil(itemsFound / itemsPerPage);
+    }
 
-  // Extraemos sku de cada producto y creamos links
-  const skus = [...html.matchAll(/\\"sku\\":\\"(\d+)\\"/g)].map((m) => m[1]);
-  const links = skus.map((sku) => `https://domicilios.tiendasd1.com/p/${sku}`);
+    // Extraemos los nombres y arreglamos formato
+    const names = [
+      ...html
+        .matchAll(/\\"product\\":\{\\\"name\\\":\\"([^"]+)"/g)
+        .map((m) => m[1].replace(/\\+/g, "")),
+    ];
 
-  const products = names.map((name, i) => ({
-    name,
-    price: prices[i],
-    pricePerUnit: pricePerUnit[i] || 1,
-    link: links[i],
-  }));
+    // Extraemos precios
+    const prices = [...html.matchAll(/\\"price\\":\s*(\d+)/g)].map((m) =>
+      Number(m[1])
+    );
+
+    // Extraemos cantidad
+    const qty = [...html.matchAll(/\\"subQty\\":\s*(\d+)/g)].map((m) =>
+      Number(m[1])
+    );
+
+    // Si hay cantidad calculamos precio por unidad
+    let pricePerUnit = [];
+    if (qty[0]) {
+      pricePerUnit = prices
+        .slice(0, names.length)
+        .map((p, i) => Number((p / qty[i]).toFixed(3)));
+    }
+
+    // Extraemos sku de cada producto y creamos links
+    const skus = [...html.matchAll(/\\"sku\\":\\"(\d+)\\"/g)].map((m) => m[1]);
+    const links = skus.map(
+      (sku) => `https://domicilios.tiendasd1.com/p/${sku}`
+    );
+
+    names.forEach((name, i) => {
+      products.push({
+        name,
+        price: prices[i],
+        pricePerUnit: pricePerUnit[i],
+        link: links[i],
+      });
+    });
+
+    currentPage++;
+  } while (currentPage <= totalPages);
 
   return products;
 };
