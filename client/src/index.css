@@ -11,7 +11,7 @@
     @apply text-gray-100 bg-gray-800;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 780px) {
     html {
       font-size: 10px;
     }

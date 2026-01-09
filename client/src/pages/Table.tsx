@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useSearch } from "../hooks/useSearch";
-import { Navigate, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import Select from "../components/Select";
+import * as XLSX from "xlsx";
+import { LuDownload } from "react-icons/lu";
 
 interface Product {
   name: string;
@@ -48,6 +50,23 @@ export default function Table() {
     }
   });
 
+  // Funcion para descargar excel
+  const exportToExcel = () => {
+    const rows = sortedData.map((p) => ({
+      Nombre: p.name,
+      Mercado: p.market,
+      "Precio final": Number(p.price),
+      "Precio por gr": Number(p.pricePerUnit),
+      Link: p.link,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Resultados");
+    XLSX.writeFile(workbook, `PriceCompare-${query}.xlsx`);
+  };
+
   // Interfaz de carga
   if (loading) {
     return (
@@ -60,11 +79,24 @@ export default function Table() {
 
   return (
     <main className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col gap-2 transition-colors">
-      <header className="bg-emerald-500 w-full h-[44px]"></header>
+      <header className="bg-white dark:bg-gray-900 w-full flex items-center py-[8px] px-[16px]">
+        <Link to="/" className="flex gap-4 font-bold items-center">
+          <img src="/icon.png" className="w-[32px]" alt="icon" />
+          <h2>PriceCompare</h2>
+        </Link>
+      </header>
       <div className="bg-white dark:bg-gray-900 p-4 pt-2 rounded text-xs m-2">
         <header className="flex justify-between mb-2 items-center">
           <h4>Resultados para {query}</h4>
-          <Select onChange={setOrderType} />
+          <div className="flex gap-2">
+            <button
+              onClick={exportToExcel}
+              className="rounded text-base border-2 bg-gray-200 dark:bg-gray-700 px-3 border-gray-300 hover:bg-emerald-400"
+            >
+              <LuDownload />
+            </button>
+            <Select onChange={setOrderType} />
+          </div>
         </header>
         <table className="min-w-full bg-white dark:bg-gray-800 rounded overflow-hidden">
           <thead className="bg-gray-200 dark:bg-gray-700">

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import Brand from "../components/Brand";
 import { useNavigate } from "react-router-dom";
 
 export default function Home() {
@@ -40,7 +39,10 @@ export default function Home() {
 
   return (
     <main className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col p-4 gap-6 transition-colors">
-      <Brand />
+      <section className="flex gap-4 text-3xl font-bold items-center">
+        <img src="/icon.png" className="w-15" alt="icon" />
+        <h1>PriceCompare</h1>
+      </section>
       {/* Selector de supermercados */}
       <div className="flex gap-3">
         {SUPER_MARKETS.map((item, i) => {
