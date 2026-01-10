@@ -14,7 +14,7 @@ export default function Theme() {
   return (
     <button
       onClick={() => setDarkMode((p) => !p)}
-      className="px-[16px] py-[8px] rounded absolute top-[4px] right-[4px] bg-emerald-400 hover:bg-emerald-300 font-bold border"
+      className="px-[16px] py-[8px] rounded absolute top-[4px] right-[4px] bg-emerald-400 hover:bg-emerald-300 font-bold border z-10"
     >
       {darkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
     </button>

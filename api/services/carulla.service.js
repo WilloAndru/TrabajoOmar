@@ -1,69 +1,89 @@
 import { fetch } from "undici";
 
 export const getProductsCarulla = async (query) => {
-  const variables = encodeURIComponent(
-    JSON.stringify({
-      first: 16,
-      after: "0",
-      sort: "score_desc",
-      term: query,
-      selectedFacets: [
-        { key: "channel", value: '{"salesChannel":"1","regionId":""}' },
-        { key: "locale", value: "es-CO" },
-      ],
-    })
-  );
+  const itemsPerPage = 16;
+  let currentPage = 0;
+  let totalPages = null;
+  let products = [];
 
-  const url = `https://www.carulla.com/api/graphql?operationName=SearchQuery&variables=${variables}`;
+  do {
+    const after = String(currentPage * itemsPerPage);
+    const variables = encodeURIComponent(
+      JSON.stringify({
+        first: itemsPerPage,
+        after,
+        sort: "score_desc",
+        term: query,
+        selectedFacets: [
+          { key: "channel", value: '{"salesChannel":"1","regionId":""}' },
+          { key: "locale", value: "es-CO" },
+        ],
+      })
+    );
 
-  const res = await fetch(url, {
-    headers: {
-      "user-agent": "Mozilla/5.0",
-      accept: "text/html",
-    },
-  });
+    const url = `https://www.carulla.com/api/graphql?operationName=SearchQuery&variables=${variables}`;
 
-  if (!res.ok) {
-    throw new Error(`Carulla response error: ${res.status}`);
-  }
+    const res = await fetch(url, {
+      headers: {
+        "user-agent": "Mozilla/5.0",
+        accept: "text/html",
+      },
+    });
 
-  const json = await res.text();
+    if (!res.ok) {
+      throw new Error(`Carulla response error: ${res.status}`);
+    }
 
-  // Extraemos los nombres y arreglamos formato
-  const names = [...json.matchAll(/},\"name\":\"([^\"]+)\"/g)]
-    .map((m) => m[1])
-    .slice(0, 16);
+    const json = await res.text();
 
-  // Extraemos precios
-  const prices = [...json.matchAll(/,"price":\s*(\d+(\.\d+)?)/g)]
-    .map((m) => Number(m[1]))
-    .slice(0, 16);
+    // Cuando es la primera iteracion, calculamos el total de paginas
+    if (totalPages === null) {
+      const match = json.match(/"totalCount":\s*(\d+)/i);
+      if (!match) break;
 
-  // Extraemos el peso
-  const qty = [
-    ...json.matchAll(/\{"name":"Factor Neto PUM","values":\["(\d+)"\]/g),
-  ]
-    .map((m) => Number(m[1]))
-    .slice(0, 16);
+      const itemsFound = Number(match[1]);
+      totalPages = Math.ceil(itemsFound / itemsPerPage);
+    }
 
-  // Calculamos el peso
-  const pricePerUnit = prices.map((price, i) => {
-    return Number((price / qty[i]).toFixed(3));
-  });
+    // Extraemos los nombres y arreglamos formato
+    const names = [...json.matchAll(/},\"name\":\"([^\"]+)\"/g)]
+      .map((m) => m[1])
+      .slice(0, 16);
 
-  // Extraemos sku de cada producto y creamos links
-  const slugs = [...json.matchAll(/"slug":"([^"]+)"/g)]
-    .map((m) => m[1])
-    .slice(0, 16);
-  const links = slugs.map((slug) => `https://www.carulla.com/${slug}/p`);
+    // Extraemos precios
+    const prices = [...json.matchAll(/,"price":\s*(\d+(\.\d+)?)/g)]
+      .map((m) => Number(m[1]))
+      .slice(0, 16);
 
-  // Evitamos error de pricePerUnit indefinido
-  const products = names.map((name, i) => ({
-    name,
-    price: prices[i] || 0,
-    pricePerUnit: pricePerUnit[i] || 1,
-    link: links[i],
-  }));
+    // Extraemos el peso
+    const qty = [
+      ...json.matchAll(/\{"name":"Factor Neto PUM","values":\["(\d+)"\]/g),
+    ]
+      .map((m) => Number(m[1]))
+      .slice(0, 16);
+
+    // Calculamos el peso
+    const pricePerUnit = prices.map((price, i) => {
+      return Number((price / qty[i]).toFixed(3));
+    });
+
+    // Extraemos sku de cada producto y creamos links
+    const slugs = [...json.matchAll(/"slug":"([^"]+)"/g)]
+      .map((m) => m[1])
+      .slice(0, 16);
+    const links = slugs.map((slug) => `https://www.carulla.com/${slug}/p`);
+
+    names.forEach((name, i) => {
+      products.push({
+        name,
+        price: prices[i],
+        pricePerUnit: pricePerUnit[i],
+        link: links[i],
+      });
+    });
+
+    currentPage++;
+  } while (currentPage <= totalPages);
 
   return products;
 };

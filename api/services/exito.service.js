@@ -1,38 +1,5 @@
 import { fetch } from "undici";
 
-export const getTotalCountExito = async (query) => {
-  const variables = encodeURIComponent(
-    JSON.stringify({
-      first: 16,
-      after: "16",
-      sort: "score_desc",
-      term: query,
-      selectedFacets: [
-        { key: "channel", value: '{"salesChannel":"1","regionId":""}' },
-        { key: "locale", value: "es-CO" },
-      ],
-    })
-  );
-
-  const url = `https://www.exito.com/api/graphql?operationName=SearchQuery&variables=${variables}`;
-
-  const res = await fetch(url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0",
-      Accept: "application/json",
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error(`Exito response error: ${res.status}`);
-  }
-
-  const json = await res.text();
-  const match = json.match(/"totalCount":\s*(\d+)/i);
-
-  return match ? Number(match[1]) : 0;
-};
-
 export const getProductsExito = async (query) => {
   const itemsPerPage = 16;
   let currentPage = 0;
