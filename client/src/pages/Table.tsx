@@ -72,7 +72,7 @@ export default function Table() {
     return (
       <main className="w-full bg-gray-200 dark:bg-gray-800 h-screen flex flex-col items-center justify-center gap-2 text-center">
         <h2>Buscando productos para "{query}"</h2>
-        <h4>Porfavor espere mas tiempo o reinicie la busqueda</h4>
+        <h4>Porfavor espere</h4>
       </main>
     );
   }
