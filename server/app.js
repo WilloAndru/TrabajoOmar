@@ -4,7 +4,7 @@ import cors from "cors";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: "*", credentials: true }));
 app.use(express.json());
 app.use("/api", routes);
 
