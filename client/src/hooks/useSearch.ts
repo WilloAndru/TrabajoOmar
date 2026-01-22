@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/api";
-import { filterByQueryInName } from "../utils/filterByQueryInName ";
 
 interface Product {
   name: string;
@@ -33,8 +32,7 @@ export const useSearch = (query: string, selectedLabels: string[]) => {
           }));
           listDatas.push(...productsWithMarket);
         }
-        const filteredData = filterByQueryInName(listDatas, query);
-        setData(filteredData);
+        setData(listDatas);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {

@@ -1,4 +1,5 @@
 import { getProductsExito } from "../services/exito.service.js";
+import { filterResponse } from "../utils/filterResponse.js";
 
 export const searchProductsExito = async (req, res) => {
   const { query } = req.query;
@@ -8,9 +9,21 @@ export const searchProductsExito = async (req, res) => {
   }
 
   try {
+    console.log("🔍 Buscando productos para:", query);
     const response = await getProductsExito(`"${query}"`);
-    return res.json(response);
+    console.log("✅ Productos obtenidos:", response.length);
+
+    const resFilter = filterResponse(response, query);
+    console.log("✅ Productos filtrados:", resFilter.length);
+
+    return res.json(resFilter);
   } catch (err) {
-    res.status(500).json({ err: "Error en el servicio de exito" });
+    console.error("❌ ERROR COMPLETO:", err); // ← ESTO ES CLAVE
+    console.error("❌ Error message:", err.message);
+    console.error("❌ Error stack:", err.stack);
+    res.status(500).json({
+      error: "Error en el servicio de exito",
+      message: err.message, // ← Enviar mensaje para debugging
+    });
   }
 };
