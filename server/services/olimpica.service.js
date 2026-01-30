@@ -8,7 +8,7 @@ export const getProductsOlimpica = async (query) => {
 
   do {
     const url = `https://www.olimpica.com/${encodeURIComponent(
-      query
+      query,
     )}/s?map=ft&page=${currentPage}&__pickRuntime=appsEtag%2Cblocks%2CblocksTree%2Ccomponents%2CcontentMap%2Cextensions%2Cmessages%2Cpage%2Cpages%2Cquery%2CqueryData%2Croute%2CruntimeMeta%2Csettings&__device=phone`;
 
     const res = await fetch(url, {
@@ -35,7 +35,7 @@ export const getProductsOlimpica = async (query) => {
 
     // Extraemos los nombres y arreglamos formato
     const names = [...json.matchAll(/\\"productName\\":\\"([^"]+)\\"/g)].map(
-      (m) => m[1]
+      (m) => m[1],
     );
 
     // Extraemos precios
@@ -43,24 +43,33 @@ export const getProductsOlimpica = async (query) => {
       ...json.matchAll(/\\"TotalValuePlusInterestRate\\":\s*(\d+)/g),
     ].map((m) => Number(m[1]));
 
-    // Calculamos el peso
+    // Calculamos el peso o volumen
     const pricePerUnit = names.map((name, i) => {
       let qty = 1;
-      const match = name.match(/(\d+(?:[.,]\d+)?)\s*(g|grs?|kg)\b/i);
+
+      // Buscar peso (g, gr, grs, kg) o volumen (ml, l)
+      const match = name.match(/(\d+(?:[.,]\d+)?)\s*(g|grs?|kg|ml|l)\b/i);
+
       if (match) {
         qty = Number(match[1].replace(",", "."));
         const unit = match[2].toLowerCase();
+
         // Convertimos kg a gramos
         if (unit === "kg") {
           qty *= 1000;
         }
+        // Convertimos litros a mililitros
+        else if (unit === "l") {
+          qty *= 1000;
+        }
       }
+
       return qty !== 1 && prices[i] ? Number((prices[i] / qty).toFixed(3)) : 1;
     });
 
     // Extraemos sku de cada producto y creamos links
     const skus = [...json.matchAll(/\\"linkText\\":\\"([^"]+)\\"/g)].map(
-      (m) => m[1]
+      (m) => m[1],
     );
     const links = skus.map((sku) => `https://www.olimpica.com/${sku}/p`);
 
