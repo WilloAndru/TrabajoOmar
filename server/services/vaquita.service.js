@@ -1,15 +1,15 @@
 import { fetch } from "undici";
 
-export const getProductsD1 = async (query) => {
+export const getProductsVaquita = async (query) => {
   const itemsPerPage = 50;
   let currentPage = 1;
   let totalPages = null;
   let products = [];
 
   do {
-    const url = `https://domicilios.tiendasd1.com/search?name=${encodeURIComponent(
+    const url = `vaquitaexpress.com.co/#f3be/embedded/m=and&p=${currentPage}&q=${encodeURIComponent(
       query,
-    )}&currentPage=${currentPage}`;
+    )}`;
 
     const res = await fetch(url, {
       headers: {
@@ -19,7 +19,7 @@ export const getProductsD1 = async (query) => {
     });
 
     if (!res.ok) {
-      throw new Error(`D1 response error: ${res.status}`);
+      throw new Error(`Vaquita response error: ${res.status}`);
     }
 
     const html = await res.text();

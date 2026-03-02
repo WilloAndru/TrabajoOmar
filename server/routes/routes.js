@@ -4,6 +4,8 @@ import { searchProductsD1 } from "../controllers/d1.controller.js";
 import { searchProductsJumbo } from "../controllers/jumbo.controller.js";
 import { searchProductsOlimpica } from "../controllers/olimpica.controller.js";
 import { searchProductsCarulla } from "../controllers/carulla.controller.js";
+import { searchProductsVaquita } from "../controllers/vaquita.controller.js";
+import { searchProductsEuro } from "../controllers/euro.controller.js";
 
 const router = express.Router();
 
@@ -13,5 +15,7 @@ router.get("/searchProductsJumbo", searchProductsJumbo);
 router.get("/searchProductsOlimpica", searchProductsOlimpica);
 router.get("/searchProductsOlimpica", searchProductsOlimpica);
 router.get("/searchProductsCarulla", searchProductsCarulla);
+router.get("/searchProductsVaquita", searchProductsVaquita);
+router.get("/searchProductsEuro", searchProductsEuro);
 
 export default router;

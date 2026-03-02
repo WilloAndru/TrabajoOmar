@@ -12,10 +12,12 @@ export default function Home() {
     { img: "/jumbo.png", label: "Jumbo" },
     { img: "/olimpica.png", label: "Olimpica" },
     { img: "/carulla.png", label: "Carulla" },
+    // { img: "/vaquita.png", label: "Vaquita" },
+    { img: "/euro.svg", label: "Euro" },
   ];
   const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
   const selectedLabels = SUPER_MARKETS.filter((_, index) =>
-    selectedMarkets.has(index)
+    selectedMarkets.has(index),
   ).map((market) => market.label);
 
   // Maneja la logica de seleccion de supermercados
