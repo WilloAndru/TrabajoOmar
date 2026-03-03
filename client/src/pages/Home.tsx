@@ -14,7 +14,7 @@ export default function Home() {
     { img: "/carulla.png", label: "Carulla" },
     // { img: "/vaquita.png", label: "Vaquita" },
     { img: "/euro.svg", label: "Euro" },
-    { img: "/zapatoca.jpg", label: "Zapatoca" },
+    // { img: "/zapatoca.jpg", label: "Zapatoca" },
     { img: "/makro.png", label: "Makro" },
   ];
 

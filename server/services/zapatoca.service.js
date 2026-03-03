@@ -1,33 +1,20 @@
-import puppeteer from "puppeteer";
-
-let browser = null;
-
-const getBrowser = async () => {
-  if (!browser || !browser.isConnected()) {
-    try {
-      browser = await puppeteer.launch({
-        headless: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      });
-    } catch (error) {
-      console.error("[ERROR] No se pudo iniciar el navegador:", error.message);
-      browser = null;
-      throw error;
-    }
-  }
-  return browser;
-};
+import puppeteer from "puppeteer-core";
 
 export const getProductsZapatoca = async (query) => {
   let currentPage = 1;
   let totalPages = 1;
   let products = [];
 
-  try {
-    const browserInstance = await getBrowser();
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath:
+      "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
 
+  try {
     do {
-      const page = await browserInstance.newPage();
+      const page = await browser.newPage();
 
       await page.setUserAgent(
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -35,7 +22,7 @@ export const getProductsZapatoca = async (query) => {
 
       const url = `https://www.mercadozapatoca.com/search/?k=${encodeURIComponent(query)}&page=${currentPage}`;
 
-      await page.goto(url, { waitUntil: "networkidle2", timeout: 30000 });
+      await page.goto(url, { waitUntil: "networkidle2" });
 
       const html = await page.content();
 
@@ -46,14 +33,14 @@ export const getProductsZapatoca = async (query) => {
           .map((m) => m[1].trim()),
       ];
 
-      // Extraemos precios
+      // Extraemos precios (solo números)
       const prices = [
         ...html
           .matchAll(/<div class="dpr_listprice"[^>]*>\$([^<]+)<\/div>/g)
           .map((m) => Number(m[1].replace(/,/g, ""))),
       ];
 
-      // Extraemos precio por unidad
+      // Extraemos precio por unidad (solo números)
       const pricePerUnit = [
         ...html
           .matchAll(/<div class="price_per_unit">\$([^\s<]+)/g)
@@ -81,10 +68,10 @@ export const getProductsZapatoca = async (query) => {
 
       currentPage++;
     } while (currentPage <= totalPages);
-
-    return products;
   } catch (error) {
-    console.error("[ERROR] En Zapatoca:", error.message);
-    return [];
+    console.error("Error en Zapatoca:", error.message);
+  } finally {
+    await browser.close();
   }
+  return products;
 };
