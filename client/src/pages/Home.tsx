@@ -14,7 +14,10 @@ export default function Home() {
     { img: "/carulla.png", label: "Carulla" },
     // { img: "/vaquita.png", label: "Vaquita" },
     { img: "/euro.svg", label: "Euro" },
+    { img: "/zapatoca.jpg", label: "Zapatoca" },
+    { img: "/makro.png", label: "Makro" },
   ];
+
   const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
   const selectedLabels = SUPER_MARKETS.filter((_, index) =>
     selectedMarkets.has(index),
@@ -46,7 +49,7 @@ export default function Home() {
         <h1>PriceCompare</h1>
       </section>
       {/* Selector de supermercados */}
-      <div className="flex gap-3">
+      <div className="grid grid-cols-4 gap-3">
         {SUPER_MARKETS.map((item, i) => {
           const isActive = selectedMarkets.has(i);
           return (
