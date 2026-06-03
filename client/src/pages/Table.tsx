@@ -79,10 +79,17 @@ export default function Table() {
 
   return (
     <main className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col gap-2 transition-colors">
-      <header className="bg-white top-0 absolute dark:bg-gray-900 w-full flex items-center py-[8px] px-[16px]">
+      <header className="bg-white top-0 absolute dark:bg-gray-900 w-full flex items-center py-[8px] px-[16px] justify-between pr-18">
         <Link to="/" className="flex gap-4 font-bold items-center">
           <img src="/icon.png" className="w-[32px]" alt="icon" />
           <h2>PriceCompare</h2>
+        </Link>
+        <Link
+          to="/dashboard"
+          state={{ query, selectedLabels }}
+          className="rounded bg-emerald-400 border hover:bg-emerald-300 py-1 px-3"
+        >
+          Dashboard
         </Link>
       </header>
       <div className="bg-white dark:bg-gray-900 p-4 pt-2 rounded text-xs m-2 mt-[56px]">

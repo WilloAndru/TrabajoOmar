@@ -1,4 +1,5 @@
 import { getProductsEuro } from "../services/euro.service.js";
+import { filterResponse } from "../utils/filterResponse.js";
 
 export const searchProductsEuro = async (req, res) => {
   const { query } = req.query;
@@ -9,7 +10,8 @@ export const searchProductsEuro = async (req, res) => {
 
   try {
     const response = await getProductsEuro(query);
-    return res.json(response);
+    const resFilter = filterResponse(response, query);
+    return res.json(resFilter);
   } catch (err) {
     return res.status(500).json({
       error: "Error en el servicio de Euro",
