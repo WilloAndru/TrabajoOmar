@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useSearch } from "../hooks/useSearch";
 import { Link, Navigate, useLocation } from "react-router-dom";
 
