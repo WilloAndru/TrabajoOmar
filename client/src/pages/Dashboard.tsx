@@ -44,7 +44,7 @@ export default function Dashboard() {
       };
     }
 
-    const prices = data.map((p: Product) => Number(p.price));
+    const prices = data.map((p: Product) => Number(p.pricePerUnit));
 
     // Promedios
     const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
@@ -69,7 +69,7 @@ export default function Dashboard() {
 
     const marketStats: MarketStats[] = Array.from(marketMap.entries())
       .map(([market, products]) => {
-        const marketPrices = products.map((p) => Number(p.price));
+        const marketPrices = products.map((p) => Number(p.pricePerUnit));
         return {
           market,
           count: products.length,
@@ -93,7 +93,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <main className="w-full bg-gray-200 dark:bg-gray-800 h-screen flex flex-col items-center justify-center gap-2 text-center">
-        <h2>Cargando datos para "{query}"</h2>
+        <h2>Cargando estadísticas para "{query}"</h2>
         <h4>Por favor espere</h4>
       </main>
     );
@@ -101,10 +101,17 @@ export default function Dashboard() {
 
   return (
     <main className="w-full bg-gray-200 dark:bg-gray-800 min-h-screen flex items-center justify-center flex-col gap-2 transition-colors">
-      <header className="bg-white top-0 absolute dark:bg-gray-900 w-full flex items-center py-[8px] px-[16px]">
+      <header className="bg-white top-0 absolute dark:bg-gray-900 w-full flex items-center py-[8px] px-[16px] justify-between pr-18">
         <Link to="/" className="flex gap-4 font-bold items-center">
           <img src="/icon.png" className="w-[32px]" alt="icon" />
           <h2>PriceCompare</h2>
+        </Link>
+        <Link
+          to="/table"
+          state={{ query, selectedLabels }}
+          className="rounded bg-emerald-400 border hover:bg-emerald-300 py-1 px-3"
+        >
+          Tabla
         </Link>
       </header>
 
@@ -113,7 +120,7 @@ export default function Dashboard() {
         <div className="mb-6">
           <h3 className="text-xl font-bold mb-1">Estadísticas de Precios</h3>
           <p className="text-gray-600 dark:text-gray-400">
-            Búsqueda: "{query}"
+            Búsqueda: "{query}" (Precio por gramo)
           </p>
         </div>
 
@@ -126,7 +133,7 @@ export default function Dashboard() {
             <p className="text-lg font-bold text-gray-900 dark:text-white">
               $
               {statistics.avgPrice.toLocaleString("es-CO", {
-                maximumFractionDigits: 0,
+                maximumFractionDigits: 2,
               })}
             </p>
           </div>
@@ -138,7 +145,7 @@ export default function Dashboard() {
             <p className="text-lg font-bold text-green-600 dark:text-green-400">
               $
               {statistics.minPrice.toLocaleString("es-CO", {
-                maximumFractionDigits: 0,
+                maximumFractionDigits: 2,
               })}
             </p>
           </div>
@@ -150,7 +157,7 @@ export default function Dashboard() {
             <p className="text-lg font-bold text-red-600 dark:text-red-400">
               $
               {statistics.maxPrice.toLocaleString("es-CO", {
-                maximumFractionDigits: 0,
+                maximumFractionDigits: 2,
               })}
             </p>
           </div>
@@ -162,7 +169,7 @@ export default function Dashboard() {
             <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
               $
               {statistics.stdDeviation.toLocaleString("es-CO", {
-                maximumFractionDigits: 0,
+                maximumFractionDigits: 2,
               })}
             </p>
           </div>
@@ -170,7 +177,9 @@ export default function Dashboard() {
 
         {/* Tabla por supermercado */}
         <div>
-          <h4 className="font-bold mb-3">Promedio por Supermercado</h4>
+          <h4 className="font-bold mb-3">
+            Promedio por Supermercado (Precio por gramo)
+          </h4>
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b dark:border-gray-700">
@@ -204,19 +213,19 @@ export default function Dashboard() {
                   <td className="py-3 px-3 font-bold text-gray-900 dark:text-white">
                     $
                     {market.avgPrice.toLocaleString("es-CO", {
-                      maximumFractionDigits: 0,
+                      maximumFractionDigits: 2,
                     })}
                   </td>
                   <td className="py-3 px-3 text-green-600 dark:text-green-400 font-semibold">
                     $
                     {market.minPrice.toLocaleString("es-CO", {
-                      maximumFractionDigits: 0,
+                      maximumFractionDigits: 2,
                     })}
                   </td>
                   <td className="py-3 px-3 text-red-600 dark:text-red-400 font-semibold">
                     $
                     {market.maxPrice.toLocaleString("es-CO", {
-                      maximumFractionDigits: 0,
+                      maximumFractionDigits: 2,
                     })}
                   </td>
                 </tr>
@@ -238,7 +247,7 @@ export default function Dashboard() {
             state={{ query, selectedLabels }}
             className="text-blue-600 dark:text-blue-400 hover:underline"
           >
-            Volver a tabla →
+            Ver tabla detallada →
           </Link>
         </div>
       </div>

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearch } from "../hooks/useSearch";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import Select from "../components/Select";
 import * as XLSX from "xlsx";
 import { LuDownload } from "react-icons/lu";
+import { useSearchCache } from "../context/SearchContext";
 
 interface Product {
   name: string;
@@ -21,6 +22,7 @@ type LocationState = {
 export default function Table() {
   const location = useLocation();
   const state = location.state as LocationState;
+  const { setCurrentQuery } = useSearchCache();
 
   // Ruta protegida
   if (!state) return <Navigate to="/" replace />;
@@ -28,6 +30,10 @@ export default function Table() {
   const { query, selectedLabels } = state;
   const { data, loading } = useSearch(query, selectedLabels);
   const [orderType, setOrderType] = useState<number>(1);
+
+  useEffect(() => {
+    setCurrentQuery(query);
+  }, [query, setCurrentQuery]);
 
   // Lista ordenada
   const sortedData = [...data].sort((a: Product, b: Product) => {

@@ -1,21 +1,23 @@
 import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useSearchCache } from "../context/SearchContext";
 
 export default function Home() {
   const [query, setQuery] = useState<string>("");
   const navigate = useNavigate();
+  const { setData, setCurrentQuery } = useSearchCache();
 
   const SUPER_MARKETS = [
     { img: "/exito.png", label: "Exito" },
     { img: "/d1.png", label: "D1" },
-    { img: "/jumbo.png", label: "Jumbo" },
+    // { img: "/jumbo.png", label: "Jumbo" },
     { img: "/olimpica.png", label: "Olimpica" },
     { img: "/carulla.png", label: "Carulla" },
     // { img: "/vaquita.png", label: "Vaquita" },
     { img: "/euro.svg", label: "Euro" },
     // { img: "/zapatoca.jpg", label: "Zapatoca" },
-    { img: "/makro.png", label: "Makro" },
+    // { img: "/makro.png", label: "Makro" },
   ];
 
   const [selectedMarkets, setSelectedMarkets] = useState(() => new Set());
@@ -37,6 +39,10 @@ export default function Home() {
     e.preventDefault();
     if (!query.trim()) return;
 
+    // Limpia el contexto antes de buscar
+    setData([]);
+    setCurrentQuery("");
+
     navigate("/table", {
       state: { query, selectedLabels },
     });
@@ -49,7 +55,7 @@ export default function Home() {
         <h1>PriceCompare</h1>
       </section>
       {/* Selector de supermercados */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-5 gap-3">
         {SUPER_MARKETS.map((item, i) => {
           const isActive = selectedMarkets.has(i);
           return (
