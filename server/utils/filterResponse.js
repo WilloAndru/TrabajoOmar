@@ -8,6 +8,10 @@ export const filterResponse = (products, query) => {
     // Filtrar productos con precio 0
     if (p.price === 0) return false;
 
+    if (p.pricePerUnit === 1) return false;
+
+    if (p.pricePerUnit > 1000) return false;
+
     // Si no hay query, mostrar todos (excepto los de precio 0)
     if (!q) return true;
 

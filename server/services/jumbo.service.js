@@ -10,6 +10,8 @@ export const getProductsJumbo = async (query) => {
     const from = currentPage * itemsPerPage;
     const to = from + itemsPerPage - 1;
 
+    console.log(`[JUMBO] Página ${currentPage + 1}, from: ${from}, to: ${to}`);
+
     const variables = {
       hideUnavailableItems: true,
       skusFilter: "ALL_AVAILABLE",
@@ -40,8 +42,10 @@ export const getProductsJumbo = async (query) => {
           provider: "vtex.search-graphql@0.x",
         },
         variables: encodedVariables,
-      })
+      }),
     )}`;
+
+    console.log(`[JUMBO] URL: ${url.substring(0, 100)}...`);
 
     const res = await fetch(url, {
       headers: {
@@ -50,30 +54,48 @@ export const getProductsJumbo = async (query) => {
       },
     });
 
+    console.log(`[JUMBO] Response status: ${res.status}`);
+
     if (!res.ok) {
       throw new Error(`Jumbo response error: ${res.status}`);
     }
 
     const json = await res.text();
+    console.log(`[JUMBO] Response length: ${json.length} caracteres`);
 
     // Cuando es la primera iteracion, calculamos el total de paginas
     if (totalPages === null) {
       const match = json.match(/"recordsFiltered":\s*(\d+)/i);
-      if (!match) break;
+      console.log(`[JUMBO] recordsFiltered match:`, match);
+
+      if (!match) {
+        console.log(
+          `[JUMBO] No se encontró recordsFiltered, mostrando primeros 500 caracteres:`,
+        );
+        console.log(json.substring(0, 500));
+        break;
+      }
 
       const itemsFound = Number(match[1]);
       totalPages = Math.ceil(itemsFound / itemsPerPage);
+      console.log(
+        `[JUMBO] Items encontrados: ${itemsFound}, Total páginas: ${totalPages}`,
+      );
     }
 
     // Extraemos los nombres y arreglamos formato
     const names = [...json.matchAll(/"productName":"([^"]+)"/g)].map(
-      (m) => m[1]
+      (m) => m[1],
     );
+    console.log(`[JUMBO] Nombres encontrados: ${names.length}`);
+    if (names.length > 0) console.log(`[JUMBO] Primer nombre:`, names[0]);
 
     // Extraemos precios
     const prices = [
       ...json.matchAll(/"TotalValuePlusInterestRate":\s*(\d+)/g),
     ].map((m) => Number(m[1]));
+    console.log(`[JUMBO] Precios encontrados: ${prices.length}`);
+    if (prices.length > 0) console.log(`[JUMBO] Primer precio:`, prices[0]);
 
     // Calculamos el peso
     const pricePerUnit = names.map((name, i) => {
@@ -89,9 +111,13 @@ export const getProductsJumbo = async (query) => {
       }
       return qty !== 1 && prices[i] ? Number((prices[i] / qty).toFixed(3)) : 1;
     });
+    console.log(`[JUMBO] Precio por unidad calculado: ${pricePerUnit.length}`);
 
     // Extraemos sku de cada producto y creamos links
     const skus = [...json.matchAll(/"linkText":"([^"]+)"/g)].map((m) => m[1]);
+    console.log(`[JUMBO] SKUs encontrados: ${skus.length}`);
+    if (skus.length > 0) console.log(`[JUMBO] Primer SKU:`, skus[0]);
+
     const links = skus.map((sku) => `https://www.jumbocolombia.com/${sku}/p`);
 
     names.forEach((name, i) => {
@@ -103,8 +129,13 @@ export const getProductsJumbo = async (query) => {
       });
     });
 
-    currentPage++;
-  } while (currentPage <= totalPages);
+    console.log(`[JUMBO] Productos totales hasta ahora: ${products.length}`);
 
+    currentPage++;
+  } while (currentPage < totalPages);
+
+  console.log(
+    `[JUMBO] Scraping completado. Total productos: ${products.length}`,
+  );
   return products;
 };
