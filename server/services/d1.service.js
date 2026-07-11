@@ -53,7 +53,6 @@ export const getProductsD1 = async (query) => {
       }
 
       const skus = [...html.matchAll(/"@id":\s*"([^"]+)"/g)].map((m) => m[1]);
-      log(skus);
 
       names.forEach((name, i) => {
         const price = prices[i] || 0;
