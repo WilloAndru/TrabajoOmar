@@ -53,9 +53,7 @@ export const getProductsD1 = async (query) => {
       }
 
       const skus = [...html.matchAll(/"@id":\s*"([^"]+)"/g)].map((m) => m[1]);
-      const links = skus.map(
-        (sku) => `https://domicilios.tiendasd1.com/p/${sku}`,
-      );
+      log(skus);
 
       names.forEach((name, i) => {
         const price = prices[i] || 0;
@@ -64,7 +62,7 @@ export const getProductsD1 = async (query) => {
             name,
             price,
             pricePerUnit: pricePerUnit[i] || 0,
-            link: links[i] || null,
+            link: skus[i] || null,
           });
         }
       });
